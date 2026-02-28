@@ -1,7 +1,7 @@
  -- [[ WEBHOOK LOGGER - START ]] --
 local WebhookConfig = {
 Url = "https://discord.com/api/webhooks/1476252269312868503/6Trh3ihDqWNC2deLhgnNLWb_ZANMWlUYC0DM_NRHTHc4hf7boAWRrQh_DM539FUKUREE",
-ScriptName = "FayintXCode | UNIVERSAL",
+ScriptName = "FayintXCode | MT",
 EmbedColor = 15158332
 }
 
