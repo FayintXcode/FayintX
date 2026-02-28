@@ -35,7 +35,6 @@ Theme = "Crimson",
 Background = "rbxassetid://97416093732560",
 SideBarWidth = 170,
 HasOutline = true,
-})
 User = {
         Enabled = true,
         Anonymous = false,
