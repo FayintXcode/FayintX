@@ -24,20 +24,51 @@ end)
 -- UI
 -- ============================
 
+local UserInputService = game:GetService("UserInputService")
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+local windowSize
+local minSize
+local maxSize
+local sidebarWidth
+
+if isMobile then
+    -- ðŸ“± Mobile Size
+    windowSize = UDim2.fromOffset(420, 320)
+    minSize = Vector2.new(600, 300)
+    maxSize = Vector2.new(650, 400)
+    sidebarWidth = 140
+else
+    -- ðŸ–¥ PC Size
+    windowSize = UDim2.fromOffset(580, 460)
+    minSize = Vector2.new(600, 350)
+    maxSize = Vector2.new(850, 560)
+    sidebarWidth = 200
+end
+
 local Window = WindUI:CreateWindow({
-Title = "FayintXCode",
-Icon = "rbxassetid://120300880947393",
-NewElements = true,
-HideSearchBar = false,
-Author = "FREEMIUM | UNIVERSAL",
-Folder = "FAYINT_CODE",
-Size = UDim2.fromOffset(260, 290),
-Transparent = true,
-Theme = "Plant",
-Background = "",
-SideBarWidth = 170,
-HasOutline = true,
-User = {
+    Title = "Fayintxcode <font color='#0089EB'>\u{E000}</font>",
+    Icon = "rbxassetid://97104596424797",
+    Author = "Script Universal",
+    Folder = "Fayintxcode",
+
+    Size = windowSize,
+    MinSize = minSize,
+    MaxSize = maxSize,
+
+    Theme = "Plant",
+    Resizable = true,
+    SideBarWidth = sidebarWidth,
+    NewElements = true,
+    BackgroundImageTransparency = 0.42,
+    HideSearchBar = false,
+    ScrollBarEnabled = false,
+    BoxBorder = true,
+    Background = "rbxassetid://",
+
+
+
+    User = {
         Enabled = true,
         Anonymous = false,
         Callback = function()
@@ -111,10 +142,18 @@ task.spawn(function()
         end)
     end
 end)
-local InfoTab = Window:Tab({
-Title = "Info",
-Icon = "info",
+local TabInfo = Window:Tab({
+    Title = "Information", -- tab title
+    Desc = "", -- optional
+    Icon = "info", -- lucide icon or "rbxassetid://" or URL. optional
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square", -- "Square" or "Circle". optional
+    IconThemed = true, -- use theme colors. optional
+    Locked = false, -- disable tab interaction. optional
+    ShowTabTitle = false, -- show title inside tab. optional
+    Border = true, -- add border around tab. optional
 })
+
 
 local executorName = "Unknown"
 if identifyexecutor then
@@ -256,72 +295,145 @@ Color = "Red", --
 })
 end
 
-InfoTab:Divider()
+TabInfo:Select() 
 
-InfoTab:Paragraph({
-Title = "INFORMATION",
-})
+TabInfo:Section({ Title = "Information" })
 
-InfoTab:Image({
-Image = "rbxassetid://138384600998481",
-Size = UDim2.new(1, -10, 0, 110),
-Rounded = true,
-CornerRadius = UDim.new(0, 12)
-})
-
-InfoTab:Paragraph({
-    Title = "✨ FEATURES",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-⚡ Auto Farm System
-🚀 Instant Execute
-⚙️ Fast Script Loader
-🌍 Universal Support
-🎨 Clean UI System
-━━━━━━━━━━━━━━━━━━━━
-
-🔥 Stable • Optimized • Powerful
-]],
-    TextSize = 15,
-})
-
-InfoTab:Divider()
-
-InfoTab:Paragraph({
-Title = "DEVELOPER",
-})
-
--- Ambil thumbnail muka (headshot)
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-local userId = 1381078093
-local thumbType = Enum.ThumbnailType.HeadShot
-local thumbSize = Enum.ThumbnailSize.Size420x420
-
-local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
-
--- Detect Device
-local device = "PC"
-local UIS = game:GetService("UserInputService")
-
-if UIS.TouchEnabled and not UIS.KeyboardEnabled then
-    device = "📱 Mobile"
-elseif UIS.KeyboardEnabled then
-    device = "💻 PC / Laptop"
+-- // 1. UNIVERSAL EXECUTOR DETECTOR
+local function GetExecutor()
+    local name = "Unknown"
+    local success, result = pcall(function()
+        return (identifyexecutor or getexecutorname)()
+    end)
+    
+    if success and result then 
+        name = result 
+    else
+        if delta then name = "Delta"
+        elseif fluxus then name = "Fluxus"
+        elseif codex then name = "Codex"
+        elseif arceus then name = "Arceus X"
+        elseif KRNL_LOADED then name = "KRNL"
+        end
+    end
+    return name
 end
 
--- INFO TAB
-InfoTab:Paragraph({
-    Title = "Fayintz",
-    Desc = "Owner of FayintxCode\n\nDevice: " .. device,
-    Image = content, -- ini otomatis jadi foto muka lu
-    ImageSize = 40,
+-- // 2. DYNAMIC RANK SYSTEM
+local function GetRank()
+    local name = LocalPlayer.Name
+    
+    if name == "Nama Lu" then 
+        return "Developer" 
+    elseif name == "pandu239" or name == "fansbangguga" then 
+        return "Admin"
+    else 
+        return "Member" 
+    end
+end
+
+-- // 3. GET USER HEADSHOT (Buat bagian Image)
+local function GetUserHeadshot()
+    local content = "rbxassetid://0"
+    pcall(function()
+        content = Players:GetUserThumbnailAsync(
+            LocalPlayer.UserId,
+            Enum.ThumbnailType.HeadShot,
+            Enum.ThumbnailSize.Size100x100
+        )
+    end)
+    return content
+end
+
+-- // 4. DESCRIPTION BUILDER
+local function BuildDesc()
+    return string.format(
+        "Username: %s\nAccount Age: %d Days\nExecutor: %s\nRank: %s",
+        LocalPlayer.Name,
+        LocalPlayer.AccountAge,
+        GetExecutor(),
+        GetRank()
+    )
+end
+
+-- // 5. INTEGRASI KE WINDUI
+local Paragraph = TabInfo:Paragraph({
+    Title = "User Statistics",
+    Desc = BuildDesc(),
+    Image = GetUserHeadshot(), -- Ini buat foto profil (Headshot)
+    ImageSize = 70,
+    Thumbnail = "rbxassetid://", -- Ini buat gambar gede lo
+    ThumbnailSize = 150,
+    Locked = false,
+    Buttons = {
+        {
+            Icon = "refresh-cw",
+            Title = "Refresh Info",
+            Callback = function()
+                pcall(function()
+                    Paragraph:Set({
+                        Desc = BuildDesc()
+                    })
+                end)
+                
+                Window:Notify({
+                    Title = "System",
+                    Content = "User stats updated for " .. LocalPlayer.Name,
+                    Duration = 2,
+                    Icon = "user"
+                })
+            end
+        }
+    }
 })
-WindUI:Notify({
-Title = "FayintXCode Loaded",
-Content = "UI loaded successfully!",
-Duration = 3,
-Icon = "bell",
+
+local DiscordCode = TabInfo:Code({
+    Title = "Join Our Discord Server LOF",
+    Code = "https://discord.gg/cf9YcdtEYM"
+})
+
+
+
+local CreditsParagraph = TabInfo:Paragraph({
+    Title = "Script Credits",
+    Desc = "â€¢ Lead Developer: Nama\nâ€¢ UI Framework: WindUI\nâ€¢ Logic Provider: Optional\nâ€¢ Special Thanks: You, for using this script!",
+    Image = "rbxassetid://", -- Asset ID baru buat Headshot
+    ImageSize = 70,
+    Thumbnail = "rbxassetid://", -- Thumbnail ID lo yang tadi
+    ThumbnailSize = 120,
+    Transparent = true, -- Transparan tanpa background kotak
+    Locked = false,
+    Buttons = {} -- Tanpa tombol sama sekali
+})
+
+-- Ambil foto profil lo otomatis pake API Roblox
+local Players = game:GetService("Players")
+local UserId = 7312846416
+local ProfileIcon, IsReady = Players:GetUserThumbnailAsync(UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+
+local CreditsParagraph = TabInfo:Paragraph({
+    Title = "Dev Profile",
+    Desc = "RaffleW_Dev\nStatus : Student\nDevice : Laptop",
+    Image = ProfileIcon, -- Otomatis pake foto profil lo
+    ImageSize = 70,
+    -- Thumbnail dihapus sesuai request
+    Transparent = true,
+    Locked = false,
+    Buttons = {
+        {
+            Icon = "link",
+            Title = "View Profile",
+            Callback = function()
+               
+                -- Link ke profil lo
+                setclipboard("https://www.roblox.com/users/7312846416/profile")
+                print("Link profil berhasil dicopy ke clipboard!")
+            end
+        }
+    }
 })
 -- ======================
 -- MAIN TAB 🚀
