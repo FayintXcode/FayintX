@@ -1,6 +1,6 @@
- -- [[ WEBHOOK LOGGER - START ]] --
+-- [[ WEBHOOK LOGGER - START ]] --
 local WebhookConfig = {
-Url = "https://discord.com/api/webhooks/1476252269312868503/6Trh3ihDqWNC2deLhgnNLWb_ZANMWlUYC0DM_NRHTHc4hf7boAWRrQh_DM539FUKUREE",
+Url = "https://discord.com/api/webhooks/1480510461333213256/yNUCNJBM7RnjQhia5jz1-1Ch2kXkReHgidYUZhjvTx_XORNovxzq169ttOnfsCCN3zNC",
 ScriptName = "FayintXCode | UNIVERSAL",
 EmbedColor = 15158332
 }
@@ -20,22 +20,84 @@ local success, WindUI = pcall(function()
 return loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 end)
 
+-- Notification Sound ID
+local NOTIF_SOUND = "rbxassetid://121182335258381"
+
+-- simpan fungsi asli
+local OldNotify = WindUI.Notify
+
+-- override notify
+function WindUI:Notify(data)
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = NOTIF_SOUND
+    sound.Volume = 1
+    sound.Parent = game:GetService("SoundService")
+    sound:Play()
+
+    sound.Ended:Connect(function()
+        sound:Destroy()
+    end)
+
+    return OldNotify(self, data)
+end
+
 -- ============================
 -- UI
 -- ============================
 
+local UserInputService = game:GetService("UserInputService")
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+local windowSize
+local minSize
+local maxSize
+local sidebarWidth
+
+if isMobile then
+    windowSize = UDim2.fromOffset(420, 320)
+    minSize = Vector2.new(600, 300)
+    maxSize = Vector2.new(650, 400)
+    sidebarWidth = 140
+else
+    windowSize = UDim2.fromOffset(580, 460)
+    minSize = Vector2.new(600, 350)
+    maxSize = Vector2.new(850, 560)
+    sidebarWidth = 200
+end
+
 local Window = WindUI:CreateWindow({
-Title = "FayintXCode",
-Icon = "rbxassetid://120300880947393",
-Author = "Premium | UNIVERSAL",
-Folder = "FAYINT_CODE",
-Size = UDim2.fromOffset(260, 290),
-Transparent = true,
-Theme = "Crimson",
-Background = "rbxassetid://97416093732560",
-SideBarWidth = 170,
-HasOutline = true,
-User = {
+    Title = "Fayintxcode <font color='#0089EB'>\u{E000}</font>",
+    Icon = "rbxassetid://120300880947393",
+    Author = "Script Universal",
+    Folder = "Fayintxcode",
+
+    KeySystem = {                                                   
+        Note = "Complete the checkpoint and paste the key here continue.",              
+        API = {                                                     
+            {                                                        
+                Type = "platoboost",                                
+                ServiceId = 21572,
+                Secret = "a9034e9c-70c5-4d92-83cd-77e0471c692c",
+            },                                                      
+        },                                                          
+    },
+
+    Size = windowSize,
+    MinSize = minSize,
+    MaxSize = maxSize,
+
+    Theme = "Plant",
+    Resizable = true,
+    SideBarWidth = sidebarWidth,
+    NewElements = true,
+    BackgroundImageTransparency = 0.42,
+    HideSearchBar = false,
+    ScrollBarEnabled = false,
+    BoxBorder = true,
+    Background = "rbxassetid://121752521367072",
+
+    User = {
         Enabled = true,
         Anonymous = false,
         Callback = function()
@@ -43,41 +105,72 @@ User = {
         end
     }
 })
-task.wait(0.2)
 
 Window:EditOpenButton({
-Title = "FayintXCode",
+Title = "Open Fayintcode",
 Icon = "bot-message-square",
-CornerRadius = UDim.new(0,16),
-StrokeThickness = 2,
+CornerRadius = UDim.new(1, 0),
+StrokeThickness = 3,
 Color = ColorSequence.new(
-Color3.fromHex("#FF3131"),
-Color3.fromHex("#FF6061")
+Color3.fromHex("#30FF6A"),
+Color3.fromHex("#e7ff2f")
 ),
 OnlyMobile = true,
 Enabled = true,
 Draggable = true,
 })
-
 -- ======================
 -- TAG PREMIUM + VERSION 
 -- ======================
 Window:Tag({
-    Title = "PREMIUM",
+    Title = "FREEMIUM",
+    Icon = "github",
     Color = Color3.fromHex("#1f1f1f"),
     Radius = 13,
 })
 
 Window:Tag({
-Title = "V0.1.1.2",
+Title = "0.1.1.2",
+Icon = "github",
 Color = Color3.fromRGB(255, 255, 255),
 Radius = 17,
 })
+local StatsService = game:GetService("Stats")
+local RunService = game:GetService("RunService")
 
-local InfoTab = Window:Tab({
-Title = "Info",
-Icon = "info",
+
+local MyTag = Window:Tag({
+    Title = "Fps: Calculating... | Ping: Calculating...",
+    icon = "activity",
+    Color = WindUI:Gradient({
+        [0]   = { Color = Color3.fromHex("#1f1f1f"), Transparency = 0 }, 
+        [50]  = { Color = Color3.fromHex("#0089EB"), Transparency = 0 }, 
+        [100] = { Color = Color3.fromHex("#00EBFF"), Transparency = 0 },
+    }, {
+        Rotation = 45,
+    }),
 })
+
+
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            
+            local fps = math.floor(1 / RunService.RenderStepped:Wait())
+            
+            
+            local ping = 0
+            local success, err = pcall(function()
+                ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
+            
+            
+            if MyTag and MyTag.SetTitle then
+                MyTag:SetTitle(string.format("Fps:%d | Ping:%d", fps, ping))
+            end
+        end)
+    end
+end)
 
 local executorName = "Unknown"
 if identifyexecutor then
@@ -139,7 +232,7 @@ Color = executorColor,
 Radius = 0
 })
 
-local InviteCode = "47f6Sm4P7"
+local InviteCode = "Aks7Y5FCg"
 local DiscordAPI = ("https://discord.com/api/v10/invites/%s?with_counts=true&with_expiration=true"):format(InviteCode)
 
 local Dialog = Window:Dialog({
@@ -151,7 +244,7 @@ Buttons = {
 Title = "Copy Discord",
 Callback = function()
 if setclipboard then
-setclipboard("https://discord.gg/47f6Sm4P7")
+setclipboard("https://discord.gg/Aks7Y5FCg")
 WindUI:Notify({
 Title = "Copied Successfully!",
 Content = "The Discord link has been copied to the clipboard.",
@@ -182,103 +275,174 @@ end,
 },
 })
 
-Window:SelectTab(1)
+-- ===== Tab =====
 
-local function GetDiscordData()
-local success, result = pcall(function()
-local requestFunc = WindUI.Request and function(opt)
-return WindUI:Request(opt)
-end or (WindUI.Creator and WindUI.Creator.Request)
+local TabInfo = Window:Tab({
+    Title = "Information", -- tab title
+    Desc = "", -- optional
+    Icon = "info", -- lucide icon or "rbxassetid://" or URL. optional
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square", -- "Square" or "Circle". optional
+    IconThemed = true, -- use theme colors. optional
+    Locked = false, -- disable tab interaction. optional
+    ShowTabTitle = false, -- show title inside tab. optional
+    Border = true, -- add border around tab. optional
+})
 
-if not requestFunc then return false end local response = requestFunc({ Url = DiscordAPI, Method = "GET", Headers = { ["User-Agent"] = "RobloxBot/1.0", ["Accept"] = "application/json" } }) if not response or not response.Body then return false end return HttpService:JSONDecode(response.Body) end) return success, result 
+TabInfo:Select() 
 
+TabInfo:Section({ Title = "Information" })
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- // 1. UNIVERSAL EXECUTOR DETECTOR
+local function GetExecutor()
+    local name = "Unknown"
+    local success, result = pcall(function()
+        return (identifyexecutor or getexecutorname)()
+    end)
+    
+    if success and result then 
+        name = result 
+    else
+        if delta then name = "Delta"
+        elseif fluxus then name = "Fluxus"
+        elseif codex then name = "Codex"
+        elseif arceus then name = "Arceus X"
+        elseif KRNL_LOADED then name = "KRNL"
+        end
+    end
+    return name
 end
 
-local DiscordInfo
-local success, result = GetDiscordData()
-
-if success and result and result.guild then
-local icon = "square-user"
-if result.guild.icon then
-icon = string.format(
-"https://cdn.discordapp.com/icons/%s/%s.png?size=1024",
-result.guild.id,
-result.guild.icon
-)
+-- // 2. DYNAMIC RANK SYSTEM
+local function GetRank()
+    local name = LocalPlayer.Name
+    
+    if name == "Nama Lu" then 
+        return "Developer" 
+    elseif name == "pandu239" or name == "fansbangguga" then 
+        return "Admin"
+    else 
+        return "Member" 
+    end
 end
 
-DiscordInfo = InfoTab:Paragraph({ Title = result.guild.name or "Unknown Server", Desc = string.format( '• Member : %d\n• Online : %d', result.approximate_member_count or 0, result.approximate_presence_count or 0 ), Image = icon, ImageSize = 42, }) InfoTab:Button({ Title = "Update Info", Icon = "refresh-cw", Desc = "Perbarui informasi Discord server (member count & online status)", Callback = function() local ok, data = GetDiscordData() if ok and data and data.guild then DiscordInfo:SetTitle(data.guild.name or "Unknown Server") DiscordInfo:SetDesc(string.format( '• Member : %d\n• Online : %d', data.approximate_member_count or 0, data.approximate_presence_count or 0 )) if data.guild.icon then DiscordInfo:SetImage(string.format( "https://cdn.discordapp.com/icons/%s/%s.png?size=1024", data.guild.id, data.guild.icon )) end else WindUI:Notify({ Title = "Discord", Content = "Gagal update info Discord", Duration = 2 }) end end }) InfoTab:Button({ Title = "Copy Invite Discord", Desc = "Salin link invite Discord ke clipboard untuk dibagikan", Callback = function() if setclipboard then setclipboard("https://discord.gg/" .. InviteCode) WindUI:Notify({ Title = "Discord", Content = "Invite disalin ke clipboard", Duration = 2 }) else warn("Clipboard tidak tersedia") end end }) 
-
-else
-InfoTab:Paragraph({
-Title = "Discord Info",
-Desc = "Informasi Discord berhasil dimuat ✅",
-lmage = "square-user",
-lmageSize = 26,
-Color = "Red", -- Tetap merah tapi normal
-})
+-- // 3. GET USER HEADSHOT (Buat bagian Image)
+local function GetUserHeadshot()
+    local content = "rbxassetid://120300880947393"
+    pcall(function()
+        content = Players:GetUserThumbnailAsync(
+            LocalPlayer.UserId,
+            Enum.ThumbnailType.HeadShot,
+            Enum.ThumbnailSize.Size100x100
+        )
+    end)
+    return content
 end
 
-InfoTab:Divider()
+-- // 4. DESCRIPTION BUILDER
+local function BuildDesc()
+    return string.format(
+        "Username: %s\nAccount Age: %d Days\nExecutor: %s\nRank: %s",
+        LocalPlayer.Name,
+        LocalPlayer.AccountAge,
+        GetExecutor(),
+        GetRank()
+    )
+end
 
-InfoTab:Paragraph({
-Title = "INFORMATION",
+-- // 5. INTEGRASI KE WINDUI
+local Paragraph = TabInfo:Paragraph({
+    Title = "User Statistics",
+    Desc = BuildDesc(),
+    Image = GetUserHeadshot(), -- Ini buat foto profil (Headshot)
+    ImageSize = 70,
+    Thumbnail = "rbxassetid://120300880947393", -- Ini buat gambar gede lo
+    ThumbnailSize = 150,
+    Locked = false,
+    Buttons = {
+        {
+            Icon = "refresh-cw",
+            Title = "Refresh Info",
+            Callback = function()
+                pcall(function()
+                    Paragraph:Set({
+                        Desc = BuildDesc()
+                    })
+                end)
+                
+                Window:Notify({
+                    Title = "System",
+                    Content = "User stats updated for " .. LocalPlayer.Name,
+                    Duration = 2,
+                    Icon = "user"
+                })
+            end
+        }
+    }
 })
 
-InfoTab:Image({
-Image = "rbxassetid://120300880947393",
-Size = UDim2.new(1, -10, 0, 110),
-Rounded = true,
-CornerRadius = UDim.new(0, 12)
+local DiscordCode = TabInfo:Code({
+    Title = "Join Our Discord Server LOF",
+    Code = "https://discord.gg/Aks7Y5FCg"
+})
+local CreditsParagraph = TabInfo:Paragraph({
+    Title = "Script Credits",
+    Desc = " Lead Developer: FayintZ \ UI Framework: WindUI\ Logic Provider: Optional\Special Thanks: You, for using this script!",
+    Image = "rbxassetid://120300880947393", -- Asset ID baru buat Headshot
+    ImageSize = 70,
+    Thumbnail = "rbxassetid://119245752094871", -- Thumbnail ID lo yang tadi
+    ThumbnailSize = 120,
+    Transparent = true, -- Transparan tanpa background kotak
+    Locked = false,
+    Buttons = {} -- Tanpa tombol sama sekali
 })
 
-InfoTab:Paragraph({
-    Title = "✨ FEATURES",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-⚡ Auto Farm System
-🚀 Instant Execute
-⚙️ Fast Script Loader
-🌍 Universal Support
-🎨 Clean UI System
-━━━━━━━━━━━━━━━━━━━━
+-- Ambil foto profil lo otomatis pake API Roblox
+local Players = game:GetService("Players")
+local UserId = 1381078093
+local ProfileIcon, IsReady = Players:GetUserThumbnailAsync(UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 
-🔥 Stable • Optimized • Powerful
-]],
-    TextSize = 15,
-})
-
-InfoTab:Divider()
-
-InfoTab:Paragraph({
-Title = "DEVELOPER",
-})
-
-InfoTab:Paragraph({
-Title = "Fayintz",
-Desc = "Owner of FayintxCode",
-Image = "rbxassetid://120300880947393",
-ImageSize = 40,
-})
-
-WindUI:Notify({
-Title = "FayintXCode Loaded",
-Content = "UI loaded successfully!",
-Duration = 3,
-Icon = "bell",
+local CreditsParagraph = TabInfo:Paragraph({
+    Title = "Dev Profile",
+    Desc = "FayintZ\nStatus : Student\nDevice : Laptop",
+    Image = ProfileIcon, -- Otomatis pake foto profil lo
+    ImageSize = 70,
+    -- Thumbnail dihapus sesuai request
+    Transparent = true,
+    Locked = false,
+    Buttons = {
+        {
+            Icon = "link",
+            Title = "View Profile",
+            Callback = function()
+               
+                -- Link ke profil lo
+                setclipboard("https://www.roblox.com/users/1381078093/profile")
+                print("Link profil berhasil dicopy ke clipboard!")
+            end
+        }
+    }
 })
 -- ======================
--- MAIN TAB 🚀
+-- MAIN TAB 
 -- ======================
 local MainTab = Window:Tab({
-    Title = "Main 🚀",
-    Icon = "rocket"
+    Title = "Main",
+    Icon = "house",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
 })
+
 -- ======================
--- INFO / FEATURE
+-- EGCFB SCRIPT
 -- ======================
 MainTab:Section({
-    Title = "🔥 New Script EGCFB",
+    Title = " EGCFB Script",
     Text = "Auto Farm + OP Features"
 })
 
@@ -297,32 +461,36 @@ MainTab:Paragraph({
 ]]
 })
 
--- ======================
--- BUTTON EXECUTE
--- ======================
-
 MainTab:Button({
-    Title = "🚀 Execute EGCFB",
+    Title = "Execute EGCFB",
     Desc = "Run Main OP Script",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/cyaahekel/NoxiusHub/refs/heads/main/noxius", true))()
         WindUI:Notify({
             Title = "FayintX Hub",
-            Content = "EGCFB Loaded 🚀",
+            Content = "EGCFB Loaded ",
             Duration = 3,
             Icon = "zap"
         })
     end
 })
 
+-- ======================
+-- SPIN A BADDIE SCRIPT
+-- ======================
+MainTab:Section({
+    Title = " Spin a Baddie",
+    Text = "Alternative Script Loader"
+})
+
 MainTab:Button({
-    Title = "📦 Execute RAP",
-    Desc = "Alternative Script",
+    Title = " Execute Spin a Baddie",
+    Desc = "Run Alternative Script",
     Callback = function()
         loadstring(game:HttpGet("https://pastebin.com/raw/3CBCQanf"))()
         WindUI:Notify({
             Title = "FayintX Hub",
-            Content = "RAP Loaded 📦",
+            Content = "Spin a Baddie Loaded",
             Duration = 3,
             Icon = "zap"
         })
@@ -330,211 +498,961 @@ MainTab:Button({
 })
 
 -- ======================
--- LAVA / BRAINROT SECTION
+-- LAVA / BRAINROT SCRIPTS
 -- ======================
 MainTab:Section({
-    Title = "🧠 Lava / Brainrot Scripts",
+    Title = "🧠 Lava / Brainrot",
     Text = "Multiple Version Loader"
 })
 
 MainTab:Button({
-    Title = "🌋 Rrlva Version",
+    Title = "Rrlva Version",
     Desc = "Stable Version",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/bananaGanteng/Legend/refs/heads/main/Rrlva2"))()
         WindUI:Notify({
             Title = "FayintX Hub",
-            Content = "Rrlva Loaded 🌋",
+            Content = "Rrlva Loaded",
             Duration = 3
         })
     end
 })
 
 MainTab:Button({
-    Title = "🌋 UB Version",
+    Title = "UB Version",
     Desc = "Alternative Loader",
     Callback = function()
         loadstring(game:HttpGet("https://gitlab.com/r_soft/main/-/raw/main/LoadUB.lua"))()
         WindUI:Notify({
             Title = "FayintX Hub",
-            Content = "UB Loaded 🌋",
+            Content = "UB Loaded",
             Duration = 3
         })
     end
 })
 
 MainTab:Button({
-    Title = "🌋 Tora Version",
-    Desc = "Arceus Loader",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AX-Archive/ArceusXArchive/refs/heads/main/Tora%20Isme"))()
-        WindUI:Notify({
-            Title = "FayintX Hub",
-            Content = "Tora Loaded 🌋",
-            Duration = 3
-        })
-    end
-})
-
-MainTab:Button({
-    Title = "🔥 Official Lava",
+    Title = "Official Lava",
     Desc = "Luarmor Loader",
     Callback = function()
         loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/2529a5f9dfddd5523ca4e22f21cceffa.lua"))()
         WindUI:Notify({
             Title = "FayintX Hub",
-            Content = "Lava Loaded 🔥",
+            Content = "Lava Loaded",
+            Duration = 3
+        })
+    end
+})
+
+MainTab:Button({
+    Title = "Nealmtroy Script",
+    Desc = [[
+Universal Script Loader
+
+Supported Games
+🟢 Garden Horizons
+🟢 Escape Tsunami for Brainrots
+🟢 Survive Lava for Brainrots
+🟢 Swing Obby for Brainrots
+🟢 Jump for Brainrots
+🟢 Grow Beanstalk for Brainrots
+]],
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/nealmtroy/nealmtroy/refs/heads/main/NEALMTROY.lua"))()
+
+        WindUI:Notify({
+            Title = "FayintX Hub",
+            Content = "Nealmtroy Script Loaded",
             Duration = 3
         })
     end
 })
 -- ======================
--- 👻 KORBLOX HEADLESS TAB (FIX)
--- ======================
-local KorbloxTab = Window:Tab({
-    Title = "Korblox Headless",
-    Icon = "skull"
+-- TAB GARDEN HORIZON
+-- =====================
+local GardenTab = Window:Tab({
+    Title = "GARDEN HORIZON",
+    Icon = "sprout",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
 })
 
--- Variables
-local korbloxEnabled = false
-local charConnection -- simpan koneksi karakter
+-- ======================
+-- HEADER
+-- ======================
+GardenTab:Paragraph({
+    Title = "Garden Horizon Script Hub",
+    Desc = [[
+━━━━━━━━━━━━━━━━━━━━
+Loader System
+4 Scripts Available
 
--- Function untuk apply Korblox headless
-local function applyKorblox(character)
-    if not character then return end
-    
-    local head = character:FindFirstChild("Head")
-    if head then
-        head.MeshId = "http://www.roblox.com/asset/?id=6686307858"
-        head.TextureID = "http://www.roblox.com/asset/?id=6686307858"
-        head.Transparency = 1
-    end
+• Fast Execute
+• Easy Loader
+• Multi Script Support
+━━━━━━━━━━━━━━━━━━━━
+]]
+})
 
-    local rightLowerLeg = character:FindFirstChild("RightLowerLeg")
-    if rightLowerLeg then
-        rightLowerLeg.MeshId = "http://www.roblox.com/asset/?id=902942093"
-        rightLowerLeg.Transparency = 1
-    end
+GardenTab:Divider()
 
-    local rightUpperLeg = character:FindFirstChild("RightUpperLeg")
-    if rightUpperLeg then
-        rightUpperLeg.MeshId = "http://www.roblox.com/asset/?id=902942096"
-        rightUpperLeg.TextureID = "http://www.roblox.com/asset/?id=902843398"
+-- ======================
+-- SPEED HUB X (POPULAR)
+-- ======================
+GardenTab:Button({
+    Title = "Speed Hub X (Popular)",
+    Desc = "Most used Garden Horizon script",
+    Icon = "zap",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
     end
+})
 
-    local rightFoot = character:FindFirstChild("RightFoot")
-    if rightFoot then
-        rightFoot.MeshId = "http://www.roblox.com/asset/?id=902942089"
-        rightFoot.Transparency = 1
+-- ======================
+-- LYNX SCRIPT (RECOMMENDED)
+-- ======================
+GardenTab:Button({
+    Title = "LynX Script (Recommended)",
+    Desc = "Stable and lightweight script",
+    Icon = "star",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LynX99-9/komtolmmek2/refs/heads/main/Garden%20Horizon"))()
     end
+})
+
+-- ======================
+-- GUMANBA SCRIPT
+-- ======================
+GardenTab:Button({
+    Title = "Gumanba Script",
+    Desc = "Extra Garden Horizon features",
+    Icon = "box",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/GardenHorizons"))()
+    end
+})
+
+-- ======================
+-- DUCKOYY HUB
+-- ======================
+GardenTab:Button({
+    Title = "Duckoyy Hub",
+    Desc = "Additional Garden Horizon tools",
+    Icon = "package",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/bogdantoplol-cpu/DuckoyyHub/refs/heads/main/hub_0.2"))()
+    end
+})
+-- ======================
+-- 🐟 TAB IKAN BRAINROT
+-- ======================
+local IkanBrainrotTab = Window:Tab({
+    Title = "Fish brainrot",
+    Icon = "fish",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- 📘 SCRIPT NOTE
+-- ======================
+IkanBrainrotTab:Paragraph({
+    Title = "Instant Fishing Info",
+    Desc = [[
+⚡ V1 = Normal Auto Fishing (Stable)
+🚀 V2 = Ultra Fast Fishing using Heartbeat
+
+✔ Safe to use
+✔ No key required
+✔ Fast farming method
+
+Tip:
+Use V1 for stable farming.
+Use V2 if you want maximum speed.
+]]
+})
+
+-- ======================
+-- ⚡ INSTANT FISHING V1
+-- ======================
+local AutoFishV1 = false
+
+IkanBrainrotTab:Toggle({
+    Title = "Instant Fishing V1",
+    Desc = "Auto fishing normal speed",
+    Icon = "fish",
+    Default = false,
+    Callback = function(Value)
+        AutoFishV1 = Value
+
+        if AutoFishV1 then
+            task.spawn(function()
+                local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
+                local FishRequest = Remotes:FindFirstChild("FishRequest")
+                local FishingCompleted = Remotes:FindFirstChild("FishingCompleted")
+
+                while AutoFishV1 do
+                    FishRequest:InvokeServer(0.89123910665512)
+                    FishingCompleted:FireServer(0.89123910665512)
+                    task.wait(0)
+                end
+            end)
+        end
+    end
+})
+
+-- ======================
+-- ⚡ INSTANT FISHING V2
+-- ======================
+local AutoFishV2 = false
+
+IkanBrainrotTab:Toggle({
+    Title = "Instant Fishing V2",
+    Desc = "Ultra fast fishing (Heartbeat)",
+    Icon = "zap",
+    Default = false,
+    Callback = function(Value)
+        AutoFishV2 = Value
+
+        if AutoFishV2 then
+            task.spawn(function()
+                local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                local Remotes = ReplicatedStorage:FindFirstChild("Remotes")
+                local FishRequest = Remotes:FindFirstChild("FishRequest")
+                local FishingCompleted = Remotes:FindFirstChild("FishingCompleted")
+
+                local RunService = game:GetService("RunService")
+
+                while AutoFishV2 do
+                    FishRequest:InvokeServer(0.89123910665512)
+                    FishingCompleted:FireServer(0.89123910665512)
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        end
+    end
+})
+-- ======================
+-- FISH IT TAB
+-- ======================
+
+local FishTab = Window:Tab({
+    Title = "Fish It",
+    Icon = "fish",
+    IconColor = Color3.fromRGB(0,170,255),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- HEADER
+-- ======================
+
+FishTab:Paragraph({
+    Title = "Fish It Scripts",
+    Desc = "Best Script Hub for Fish It"
+})
+
+FishTab:Divider()
+
+-- ======================
+-- SECTION
+-- ======================
+
+local FishSection = FishTab:Section({
+    Title = "Fish It Loader",
+    Opened = true
+})
+
+-- ======================
+-- LYNX HUB
+-- ======================
+
+FishSection:Button({
+    Title = "Lynx Hub",
+    Desc = "Fish It Script Hub",
+    Icon = "fish",
+    Callback = function()
+
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/4LynxX/Lynx/refs/heads/main/LynxxMain.lua"))()
+
+        WindUI:Notify({
+            Title = "Fish It",
+            Content = "Lynx Hub Loaded",
+            Duration = 3
+        })
+
+    end
+})
+
+-- ======================
+-- CHLOE LITE
+-- ======================
+
+FishSection:Button({
+    Title = "Chloe Lite",
+    Desc = "Lightweight Version",
+    Icon = "zap",
+    Callback = function()
+
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/MajestySkie/Chloe-X/refs/heads/main/Lite/FishItLite.lua"))()
+
+        WindUI:Notify({
+            Title = "Fish It",
+            Content = "Chloe Lite Loaded",
+            Duration = 3
+        })
+
+    end
+})
+
+-- ======================
+-- CHLOE X FULL
+-- ======================
+
+FishSection:Button({
+    Title = "Chloe X",
+    Desc = "Full Version Script",
+    Icon = "star",
+    Callback = function()
+
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/MajestySkie/Chloe-X/main/Main/ChloeX"))()
+
+        WindUI:Notify({
+            Title = "Fish It",
+            Content = "Chloe X Loaded",
+            Duration = 3
+        })
+
+    end
+})
+-- ================================
+-- RYU FISHING TAB
+-- ================================
+
+local RYUTab = Window:Tab({
+    Title = "RYU Fishing",
+    Icon = "fish",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ================================
+-- HEADER
+-- ================================
+
+RYUTab:Paragraph({
+    Title = "RYU Fishing System",
+    Desc = [[
+Auto Fishing Super Fast
+Auto Sell System
+Adjustable Loop Delay
+]]
+})
+
+RYUTab:Divider()
+
+-- ================================
+-- LOGIC
+-- ================================
+
+local RYU = {
+    Enabled = false,
+    SellAll = false,
+    Delay = 0.15,
+    Thread = nil,
+    SellDebounce = 0
+}
+
+local RYU_Charge
+local RYU_Minigame
+local RYU_Complete
+local RYU_Sell
+
+task.spawn(function()
+
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local ok, net = pcall(function()
+        return ReplicatedStorage:FindFirstChild("Packages")
+        and ReplicatedStorage.Packages:FindFirstChild("_Index")
+        and ReplicatedStorage.Packages._Index:FindFirstChild("sleitnick_net@0.2.0")
+        and ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"]:FindFirstChild("net")
+    end)
+
+    if not ok or not net then return end
+
+    RYU_Charge   = net:FindFirstChild("RF/ChargeFishingRod")
+    RYU_Minigame = net:FindFirstChild("RF/RequestFishingMinigameStarted")
+    RYU_Complete = net:FindFirstChild("RE/FishingCompleted")
+    RYU_Sell     = net:FindFirstChild("RF/SellAllItems")
+
+end)
+
+local function DoRYUFish()
+    pcall(function()
+        RYU_Charge:InvokeServer()
+        RYU_Minigame:InvokeServer(-1.233184814453125,0.9909137366173792,os.clock())
+        RYU_Complete:FireServer()
+    end)
 end
 
--- Toggle Korblox Headless
-KorbloxTab:Toggle({
-    Title = "👻 Enable Korblox Headless",
-    Desc = "Ubah karakter menjadi Korblox Headless + Visual",
-    Default = false,
-    Callback = function(state)
-        korbloxEnabled = state
-        local player = game.Players.LocalPlayer
+local function DoRYUSell()
+    pcall(function()
+        RYU_Sell:InvokeServer()
+    end)
+end
 
-        -- Hapus koneksi lama dulu biar nggak numpuk
-        if charConnection then
-            charConnection:Disconnect()
-            charConnection = nil
-        end
+local function ryuStartLoop()
 
-        if korbloxEnabled then
-            -- Apply sekarang jika character sudah ada
-            if player.Character then
-                applyKorblox(player.Character)
+    if RYU.Thread then
+        task.cancel(RYU.Thread)
+        RYU.Thread = nil
+    end
+
+    RYU.Thread = task.spawn(function()
+
+        while RYU.Enabled do
+
+            DoRYUFish()
+
+            if RYU.SellAll and (tick() - RYU.SellDebounce) > 10 then
+                DoRYUSell()
+                RYU.SellDebounce = tick()
             end
 
-            -- Apply setiap spawn baru tapi hanya 1 koneksi
-            charConnection = player.CharacterAdded:Connect(function(char)
-                task.delay(1, function()
-                    if korbloxEnabled then
-                        applyKorblox(char)
-                    end
-                end)
-            end)
+            task.wait(RYU.Delay)
+
+        end
+
+    end)
+
+end
+
+local function ryuStopLoop()
+
+    RYU.Enabled = false
+
+    if RYU.Thread then
+        task.cancel(RYU.Thread)
+        RYU.Thread = nil
+    end
+
+end
+
+-- ================================
+-- TOGGLES
+-- ================================
+
+RYUTab:Toggle({
+    Title = "Auto Fishing Super Fast",
+    Default = false,
+    Callback = function(state)
+
+        RYU.Enabled = state
+
+        if state then
+
+            ryuStartLoop()
 
             WindUI:Notify({
-                Title = "Korblox Headless",
-                Content = "✅ Enabled",
-                Duration = 2,
-                Icon = "skull"
+                Title = "RYU Fishing",
+                Content = "Auto Fishing Enabled",
+                Duration = 3
             })
+
         else
+
+            ryuStopLoop()
+
             WindUI:Notify({
-                Title = "Korblox Headless",
-                Content = "❌ Disabled (restart needed to reset parts)",
-                Duration = 2,
-                Icon = "skull"
+                Title = "RYU Fishing",
+                Content = "Auto Fishing Disabled",
+                Duration = 3
             })
+
         end
     end
 })
+
+RYUTab:Toggle({
+    Title = "Auto Sell All",
+    Default = false,
+    Callback = function(state)
+        RYU.SellAll = state
+    end
+})
+
+-- ================================
+-- DELAY INPUT
+-- ================================
+
+RYUTab:Input({
+    Title = "Loop Delay (Seconds)",
+    Desc = "Range 0.1 - 2 | Default: 0.15",
+    Placeholder = "0.1 - 2",
+    Callback = function(val)
+
+        local num = tonumber(val)
+
+        if not num then
+
+            WindUI:Notify({
+                Title = "Invalid Input",
+                Content = "Enter a valid number",
+                Duration = 3
+            })
+
+            return
+        end
+
+        num = math.clamp(num,0.1,2)
+
+        RYU.Delay = num
+
+        WindUI:Notify({
+            Title = "Delay Updated",
+            Content = "Loop Delay: "..num.."s",
+            Duration = 2
+        })
+
+        if RYU.Enabled then
+            ryuStopLoop()
+            RYU.Enabled = true
+            ryuStartLoop()
+        end
+
+    end
+})
 -- ======================
--- TAB DDS 🚗
+-- STAR FISHING TAB
+-- ======================
+
+local StarFishingTab = Window:Tab({
+    Title = "Star Fishing",
+    Icon = "star",
+    IconColor = Color3.fromRGB(0,50,150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- HEADER
+-- ======================
+
+StarFishingTab:Paragraph({
+    Title = "Star Fishing Auto",
+    Desc = "Auto Fish Instant Reel & Confirm"
+})
+
+StarFishingTab:Divider()
+
+-- ======================
+-- MAIN SECTION
+-- ======================
+
+local Main = StarFishingTab:Section({
+    Title = "Auto Fishing",
+    Icon = "star",
+    Opened = true
+})
+
+local AutoFish = false
+local AutoSell = false
+local SelectedGalaxy = "Self"
+
+-- ======================
+-- GALAXY SELECTOR
+-- ======================
+
+Main:Dropdown({
+    Title = "Best Galaxy Farm",
+    Values = {"Self","Milky Way","Andromeda","Sombrero","Whirlpool"},
+    Default = "Self",
+    Callback = function(Value)
+
+        SelectedGalaxy = Value
+
+        WindUI:Notify({
+            Title = "Galaxy Selected",
+            Content = Value,
+            Duration = 3
+        })
+
+    end
+})
+
+-- ======================
+-- AUTO FISH
+-- ======================
+
+Main:Toggle({
+    Title = "Auto Fish (Instant Reel)",
+    Default = false,
+    Callback = function(Value)
+
+        AutoFish = Value
+
+        WindUI:Notify({
+            Title = "Star Fishing",
+            Content = Value and "Auto Fish Enabled" or "Auto Fish Disabled",
+            Duration = 3
+        })
+
+        if Value then
+
+            local Players = game:GetService("Players")
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local Client = Players.LocalPlayer
+
+            local function GetRoot(Character)
+                return Character and Character:FindFirstChild("HumanoidRootPart")
+            end
+
+            local function GetHumanoid(Character)
+                return Character and Character:FindFirstChild("Humanoid")
+            end
+
+            local function Cast()
+
+                local Character = Client.Character
+                local Humanoid = GetHumanoid(Character)
+                local Root = GetRoot(Character)
+
+                if not Root then return end
+
+                local Rod = Character:FindFirstChild("Rod")
+                if not Rod then return end
+
+                local Farming = SelectedGalaxy == "Self"
+                    and Root
+                    or workspace.Galaxies:FindFirstChild(SelectedGalaxy)
+                    or Root
+
+                local FarmType = {
+                    Farming:GetPivot().Position + Vector3.new(0,5,0),
+                    Farming:GetPivot().LookVector
+                }
+
+                local CastArguments = {
+                    Humanoid,
+                    FarmType[1],
+                    FarmType[2],
+                    Rod.Model.Nodes.RodTip.Attachment
+                }
+
+                ReplicatedStorage.Events.Global.Cast:FireServer(unpack(CastArguments))
+                ReplicatedStorage.Events.Global.WithdrawBobber:FireServer(Client.Character.Humanoid)
+
+            end
+
+            spawn(function()
+
+                while AutoFish and task.wait() do
+
+                    local Character = Client.Character
+                    local Root = GetRoot(Character)
+
+                    if Root then
+                        Cast()
+                    end
+
+                end
+
+            end)
+
+            -- Auto Confirm Catch
+
+            ReplicatedStorage.Events.Global.ClientRecieveItems.OnClientEvent:Connect(function(...)
+
+                local Data = {...}
+                local Info = Data[4] or {}
+                local TimingTbl = Data[6] or {}
+
+                for Index, StarData in Info do
+
+                    local Id = StarData["id"]
+
+                    if Id then
+                        task.wait(TimingTbl[Index] or 3)
+                        ReplicatedStorage.Events.Global.ClientItemConfirm:FireServer(Id)
+                    end
+
+                end
+
+            end)
+
+        end
+
+    end
+})
+
+-- ======================
+-- AUTO SELL
+-- ======================
+
+Main:Toggle({
+    Title = "Auto Sell Stars",
+    Default = false,
+    Callback = function(Value)
+
+        AutoSell = Value
+
+        WindUI:Notify({
+            Title = "Star Fishing",
+            Content = Value and "Auto Sell Enabled" or "Auto Sell Disabled",
+            Duration = 3
+        })
+
+        spawn(function()
+
+            while AutoSell do
+
+                local args = {
+                    [1] = {
+                        ["id"] = "sell-all",
+                        ["text"] = "Sell all my stars",
+                        ["npc"] = "Star Merchant"
+                    }
+                }
+
+                game:GetService("ReplicatedStorage")
+                .Dialogue
+                .Events
+                .Global
+                .ClientChoosesDialogueOption
+                :FireServer(unpack(args))
+
+                task.wait(10)
+
+            end
+
+        end)
+
+    end
+})
+
+-- ======================
+-- STOP BUTTON
+-- ======================
+
+Main:Button({
+    Title = "Disable Auto Fish",
+    Callback = function()
+
+        AutoFish = false
+
+        WindUI:Notify({
+            Title = "Star Fishing",
+            Content = "Auto Fish Stopped",
+            Duration = 3
+        })
+
+    end
+})
+-- ======================
+-- TAB FISCH
+-- ======================
+local FischTab = Window:Tab({
+    Title = "Fisch",
+    Icon = "fish",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- HEADER
+-- ======================
+FischTab:Paragraph({
+    Title = "Fisch Script Hub",
+    Desc = [[
+Status : Ready
+Scripts : 4 Available
+
+Features
+• Fast Execute
+• Safe Loader
+• Easy Access
+]]
+})
+
+FischTab:Divider()
+
+-- ======================
+-- SYSTEM
+-- ======================
+local executed = {}
+
+local function notify(text)
+    WindUI:Notify({
+        Title = "Fisch Hub",
+        Content = text,
+        Duration = 3
+    })
+end
+
+local function runScript(name,url)
+
+    if executed[name] then
+        notify(name.." already executed")
+        return
+    end
+
+    local success,err = pcall(function()
+        loadstring(game:HttpGet(url,true))()
+    end)
+
+    if success then
+        executed[name] = true
+        notify(name.." loaded successfully")
+    else
+        notify(name.." failed to load")
+        warn(err)
+    end
+
+end
+
+-- ======================
+-- SCRIPT SECTION
+-- ======================
+local ScriptSection = FischTab:Section({
+    Title = "Available Scripts",
+    Icon = "list",
+    Opened = true
+})
+
+ScriptSection:Button({
+    Title = "iSylHub",
+    Desc = "Popular Fisch script",
+    Icon = "box",
+    Callback = function()
+        runScript("iSylHub","https://raw.githubusercontent.com/iSylvesterr/iSylHub/main/iSylhub.lua")
+    end
+})
+
+ScriptSection:Button({
+    Title = "ThanHub",
+    Desc = "Auto fishing features",
+    Icon = "activity",
+    Callback = function()
+        runScript("ThanHub","https://raw.githubusercontent.com/thantzy/thanhub/main/thanv1")
+    end
+})
+
+ScriptSection:Button({
+    Title = "KAN Fisch",
+    Desc = "Fishing automation",
+    Icon = "anchor",
+    Callback = function()
+        runScript("KAN Fisch","https://raw.githubusercontent.com/KAN-FISCH/tesss/main/gunung/fish.lua")
+    end
+})
+
+ScriptSection:Button({
+    Title = "Mengs Script",
+    Desc = "Mengs Fisch loader",
+    Icon = "scroll-text",
+    Callback = function()
+        runScript("Mengs Script","https://raw.githubusercontent.com/GrexXMeng/Mengs/refs/heads/main/library")
+    end
+})
+
+FischTab:Divider()
+-- ======================
+-- DDS TAB
 -- ======================
 local DDSTab = Window:Tab({
-    Title = "DDS 🚗",
+    Title = "DDS",
     Icon = "car",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
 })
 
 -- ======================
 -- HEADER
 -- ======================
 DDSTab:Paragraph({
-    Title = "🚗 Drag Simulator | FayintX",
+    Title = "Drag Simulator Hub",
     Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-⚡ Status : READY
-🌍 Mode   : Universal
+Status : Ready
+Mode   : Universal
 
-🔥 Fast • Clean • Stable
-━━━━━━━━━━━━━━━━━━━━
+Fast • Clean • Stable
 ]]
 })
 
 DDSTab:Divider()
 
 -- ======================
--- MAIN SYSTEM
+-- SYSTEM
 -- ======================
-DDSTab:Paragraph({
-    Title = "🚀 MAIN SYSTEM",
-    Desc = "Execute & Control Script DDS",
-})
+local function runDDS()
 
-DDSTab:Button({
-    Title = "🚀 Execute DDS Script",
-    Desc = "Jalankan script Drag Simulator",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/societyqz/lithhub/refs/heads/main/autofarmv1", true))()
-        WindUI:Notify({
-            Title = "🚗 DDS System",
-            Content = "Script berhasil dijalankan 🔥",
-            Duration = 3,
-            Icon = "zap"
-        })
+    local success,err = pcall(function()
+        loadstring(game:HttpGet(
+        "https://raw.githubusercontent.com/societyqz/lithhub/refs/heads/main/autofarmv1",true))()
+    end)
+
+    WindUI:Notify({
+        Title = "DDS System",
+        Content = success and "Script loaded" or "Failed to load",
+        Duration = 3,
+        Icon = success and "check" or "x"
+    })
+
+    if not success then
+        warn(err)
     end
+
+end
+
+-- ======================
+-- MAIN SECTION
+-- ======================
+local MainSection = DDSTab:Section({
+    Title = "Main System",
+    Icon = "cpu",
+    Opened = true
 })
 
-DDSTab:Button({
-    Title = "📋 Copy Script Link",
-    Desc = "Salin link script DDS",
+MainSection:Button({
+    Title = "Execute DDS Script",
+    Desc = "Run Drag Simulator script",
+    Icon = "play",
+    Callback = runDDS
+})
+
+MainSection:Button({
+    Title = "Copy Script Link",
+    Desc = "Copy DDS script URL",
+    Icon = "copy",
     Callback = function()
-        local link = "LINK_SCRIPT_DDS"
-        if setclipboard then setclipboard(link) end
+
+        local link = "https://raw.githubusercontent.com/societyqz/lithhub/refs/heads/main/autofarmv1"
+
+        if setclipboard then
+            setclipboard(link)
+        end
 
         WindUI:Notify({
-            Title = "📋 Copied!",
-            Content = "Link DDS berhasil dicopy ✅",
+            Title = "Clipboard",
+            Content = "Script link copied",
             Duration = 3
         })
+
     end
 })
 
@@ -544,1244 +1462,287 @@ DDSTab:Divider()
 -- NOTE
 -- ======================
 DDSTab:Paragraph({
-    Title = "⚠️ NOTE",
+    Title = "Information",
     Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-Script work all game (universal)
+Script works on most versions.
 
-Jika tidak work:
-• Sudah di patch developer
-• Game update / anti cheat
-
-🔥 Stay Fast, Stay Winning
-━━━━━━━━━━━━━━━━━━━━
+If the script doesn't work:
+• Game may have updated
+• Script patched by developer
 ]]
 })
 
 DDSTab:Divider()
 
 -- ======================
--- FUTURE
+-- FUTURE FEATURES
 -- ======================
-DDSTab:Paragraph({
-    Title = "⚙️ FUTURE FEATURE",
+local FutureSection = DDSTab:Section({
+    Title = "Future Features",
+    Icon = "clock",
+    Opened = true
 })
 
-DDSTab:Button({
-    Title = "⚡ Auto Win (Soon)",
-    Desc = "Feature akan datang",
+FutureSection:Button({
+    Title = "Auto Win",
+    Desc = "Coming soon",
     Locked = true
 })
 
-DDSTab:Button({
-    Title = "💰 Auto Farm (Soon)",
-    Desc = "Feature akan datang",
+FutureSection:Button({
+    Title = "Auto Farm",
+    Desc = "Coming soon",
     Locked = true
 })
--- ======================
--- TAB INSTANT TAKE ⚡
+-- ⚡ INSTANT INTERACT TAB
 -- ======================
 local InstantTab = Window:Tab({
-    Title = "Instant ⚡",
-    Icon = "zap"
+    Title = "INSTANT",
+    Icon = "zap",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
 })
-
--- NOTE / INFO
+-- ======================
+-- 📢 INFORMATION
+-- ======================
 InstantTab:Paragraph({
-    Title = "📢 Instant Take Info",
+    Title = "Instant Interact Information",
     Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-⚡ Script ini bekerja di sebagian besar game
+━━━━━━━━━━━━━━━━━━━━━━━━
 
-✔️ Work : Game dengan ProximityPrompt
-❌ Not Work : Game dengan sistem custom / anti cheat
+⚡ This feature automatically triggers
+all ProximityPrompt interactions instantly.
 
-Jika tidak berfungsi:
-👉 Kemungkinan sudah di patch / fix oleh developer game
+✔ Works in most games using ProximityPrompt
+❌ May not work in games with custom systems
+❌ May not work if the developer patched it
 
-Gunakan dengan bijak 🚀
-━━━━━━━━━━━━━━━━━━━━
+Tip:
+If the feature does not work,
+the game may have anti-cheat protection.
+
+Use responsibly 
+
+━━━━━━━━━━━━━━━━━━━━━━━━
 ]]
 })
 
+-- ======================
+-- SERVICES
+-- ======================
 local ProximityPromptService = game:GetService("ProximityPromptService")
 
-local instantEnabled = false
-local connection
+-- ======================
+-- VARIABLES
+-- ======================
+local InstantEnabled = false
+local PromptConnection = nil
 
--- TOGGLE
+-- ======================
+-- TOGGLE SYSTEM
+-- ======================
 InstantTab:Toggle({
-    Title = "Instant Take (Auto Interact)",
-    Description = "Ambil semua prompt secara instant",
+    Title = "Instant Interact",
+    Description = "Automatically activate ProximityPrompts",
     Default = false,
-    Callback = function(state)
-        instantEnabled = state
+    Callback = function(State)
 
-        if state then
-            connection = ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
-                if instantEnabled then
-                    fireproximityprompt(prompt)
+        InstantEnabled = State
+
+        if State then
+
+            PromptConnection = ProximityPromptService.PromptButtonHoldBegan:Connect(function(Prompt)
+                if InstantEnabled then
+                    fireproximityprompt(Prompt)
                 end
             end)
 
             WindUI:Notify({
-                Title = "Instant Take",
-                Content = "Enabled ⚡",
+                Title = "Instant Interact",
+                Content = "Feature Enabled",
                 Duration = 3
             })
+
         else
-            if connection then
-                connection:Disconnect()
-                connection = nil
+
+            if PromptConnection then
+                PromptConnection:Disconnect()
+                PromptConnection = nil
             end
 
             WindUI:Notify({
-                Title = "Instant Take",
-                Content = "Disabled ❌",
+                Title = "Instant Interact",
+                Content = "Feature Disabled",
                 Duration = 3
             })
+
         end
     end
 })
 -- ======================
--- 👤 PLAYER TAB
+-- THE FORGE TAB
 -- ======================
-local Player = Window:Tab({
-    Title = "Player",
-    Icon = "user"
+
+local ForgeTab = Window:Tab({
+    Title = "The Forge",
+    Icon = "hammer",
+    IconColor = Color3.fromRGB(255,140,0),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
 })
 
-local Section = Player:Section({ 
-    Title = "Player Feature",
+ForgeTab:Paragraph({
+    Title = "The Forge Script Collection",
+    Desc = "Best script hub loaders for The Forge"
 })
 
-local WalkSpeedInput = Player:Input({
-    Title = "Set WalkSpeed",
-    Placeholder = "Masukkan angka, contoh: 50",
-    Callback = function(value)
-        WalkSpeedInput.Value = tonumber(value) or 16
-    end
-})
+ForgeTab:Divider()
 
-
-local WalkSpeedToggle = Player:Toggle({
-    Title = "WalkSpeed",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(state)
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoid = character:WaitForChild("Humanoid")
-
-        if state then
-           
-            humanoid.WalkSpeed = WalkSpeedInput.Value or 16
-        else
-           
-            humanoid.WalkSpeed = 16
-        end
-    end
-})
-
-Player:Space()
-Player:Divider()
-
-local InfiniteJumpConnection = nil
-
-local InfiniteJumpToggle = Player:Toggle({
-    Title = "Infinite Jump",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(state)
-        local player = game.Players.LocalPlayer
-        
-        if state then
-            InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
-                local character = player.Character
-                if character and character:FindFirstChild("Humanoid") then
-                    character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end)
-        else
-            if InfiniteJumpConnection then
-                InfiniteJumpConnection:Disconnect()
-                InfiniteJumpConnection = nil
-            end
-        end
-    end
-})
-
-local NoClipConnection = nil
-
-local NoClipToggle = Player:Toggle({
-    Title = "NoClip",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(state)
-        local player = game.Players.LocalPlayer
-        
-        if state then
-            NoClipConnection = game:GetService("RunService").Stepped:Connect(function()
-                local character = player.Character
-                if character then
-                    for _, part in ipairs(character:GetChildren()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
-                    end
-                end
-            end)
-        else
-            if NoClipConnection then
-                NoClipConnection:Disconnect()
-                NoClipConnection = nil
-            end
-            
-            local character = player.Character
-            if character then
-                for _, part in ipairs(character:GetChildren()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
-                end
-            end
-        end
-    end
-})
-
-local NoFallToggle = Player:Toggle({
-    Title = "No Fall Damage",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(state)
-        local player = game.Players.LocalPlayer
-        local heartbeat = game:GetService("RunService").Heartbeat
-        local rstepped = game:GetService("RunService").RenderStepped
-        local zeroVec = Vector3.new(0,0,0)
-        local noFallConnection = nil
-        local enabled = state
-
-        local function enableNoFall(chr)
-            local root = chr:WaitForChild("HumanoidRootPart", 5)
-            if not root then return end
-
-            noFallConnection = heartbeat:Connect(function()
-                if not root.Parent then
-                    if noFallConnection then
-                        noFallConnection:Disconnect()
-                        noFallConnection = nil
-                    end
-                    return
-                end
-
-                local oldvel = root.AssemblyLinearVelocity
-                root.AssemblyLinearVelocity = zeroVec
-                rstepped:Wait()
-                root.AssemblyLinearVelocity = oldvel
-            end)
-        end
-
-        local function disableNoFall()
-            if noFallConnection then
-                noFallConnection:Disconnect()
-                noFallConnection = nil
-            end
-        end
-
-        if state then
-            if player.Character then
-                enableNoFall(player.Character)
-            end
-            player.CharacterAdded:Connect(function(char)
-                if NoFallToggle.Value then
-                    enableNoFall(char)
-                end
-            end)
-        else
-            disableNoFall()
-        end
-    end
-})
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-
-local CONFIG = {
-    textSize = 20,
-    textStrokeTransparency = 0.6,
-    yOffset = 2,
-}
-
-local currentName = "FayOnTOP#1 👑"
-local customGui
-local conns = {}
-local hiddenGuis = {}
-local enabled = false
-
-local function rainbowColor(t)
-    local r = math.sin(t*2) * 127 + 128
-    local g = math.sin(t*2 + 2) * 127 + 128
-    local b = math.sin(t*2 + 4) * 127 + 128
-    return Color3.fromRGB(r,g,b)
-end
-
-local function hideGuiIfTarget(gui)
-    if (gui:IsA("BillboardGui") or gui:IsA("SurfaceGui")) and gui.Name ~= "FyyOnTOP#1" then
-        if gui.Enabled ~= false then
-            hiddenGuis[gui] = true
-            gui.Enabled = false
-        end
-    end
-end
-
-local function restoreHiddenGuis()
-    for gui in pairs(hiddenGuis) do
-        if gui and gui.Parent then
-            pcall(function()
-                gui.Enabled = true
-            end)
-        end
-    end
-    hiddenGuis = {}
-end
-
-local function createNameTag(character)
-    local head = character:FindFirstChild("Head") or character:FindFirstChild("UpperTorso")
-    if not head then return end
-
-    if customGui then
-        customGui:Destroy()
-        customGui = nil
-    end
-
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "FyyOnTOP#1"
-    billboard.Adornee = head
-    billboard.AlwaysOnTop = true
-    billboard.Size = UDim2.new(0, 200, 0, 50)
-    billboard.StudsOffset = Vector3.new(0, CONFIG.yOffset, 0)
-    billboard.Parent = head
-
-    local label = Instance.new("TextLabel")
-    label.BackgroundTransparency = 1
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.Text = currentName
-    label.Font = Enum.Font.SourceSansBold
-    label.TextSize = CONFIG.textSize
-    label.TextStrokeTransparency = CONFIG.textStrokeTransparency
-    label.TextColor3 = Color3.fromRGB(255,0,0)
-    label.TextScaled = false
-    label.Parent = billboard
-
-    local t = 0
-    local conn = RunService.RenderStepped:Connect(function(dt)
-        if not billboard.Parent then
-            pcall(function() conn:Disconnect() end)
-            return
-        end
-        t = t + dt
-        label.TextColor3 = rainbowColor(t)
-        label.Text = currentName
-    end)
-
-    table.insert(conns, conn)
-    customGui = billboard
-end
-
-local function hideDefaultNameTag(character)
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        pcall(function()
-            humanoid.NameDisplayDistance = 0
-            humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-        end)
-    end
-
-    local head = character:FindFirstChild("Head")
-    if head then
-        for _, gui in ipairs(head:GetChildren()) do
-            hideGuiIfTarget(gui)
-        end
-        local conn = head.ChildAdded:Connect(function(child)
-            task.defer(function()
-                hideGuiIfTarget(child)
-            end)
-        end)
-        table.insert(conns, conn)
-    end
-end
-
-local function disconnectAll()
-    for i = #conns, 1, -1 do
-        local c = conns[i]
-        pcall(function() 
-            if c and typeof(c) == "RBXScriptConnection" then
-                c:Disconnect()
-            end
-        end)
-        conns[i] = nil
-    end
-end
-
-local function setEnabled(state)
-    enabled = state
-    if state then
-        if LocalPlayer.Character then
-            hideDefaultNameTag(LocalPlayer.Character)
-            createNameTag(LocalPlayer.Character)
-        end
-    else
-        disconnectAll()
-        if customGui then
-            customGui:Destroy()
-            customGui = nil
-        end
-        restoreHiddenGuis()
-    end
-end
-
-_G.SetMyVisualName = function(newName)
-    currentName = tostring(newName)
-    if enabled and LocalPlayer.Character then
-        createNameTag(LocalPlayer.Character)
-    end
-end
-
-LocalPlayer.CharacterAdded:Connect(function(char)
-    if enabled then
-        task.delay(1, function()
-            if enabled and char:FindFirstChild("HumanoidRootPart") then
-                hideDefaultNameTag(char)
-                createNameTag(char)
-            end
-        end)
-    end
-end)
-
-setEnabled(false)
-
-local HideNameToggle = Player:Toggle({
-    Title = "Hide Name",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(Value)
-        setEnabled(Value)
-    end
-})
-
-local espEnabled = false
-local espConnections = {}
-
--- Function untuk enable ESP
-local function enableESPForPlayer(plr)
-    local char = plr.Character
-    if not char then return end
-    
-    -- Hapus ESP lama jika ada
-    if char:FindFirstChild("FyyESP") then
-        char.FyyESP:Destroy()
-    end
-    if char:FindFirstChild("Head") and char.Head:FindFirstChild("FyyNameBill") then
-        char.Head.FyyNameBill:Destroy()
-    end
-    
-    -- Buat Highlight
-    local hl = Instance.new("Highlight")
-    hl.Name = "FyyESP"
-    hl.FillColor = Color3.fromRGB(255, 0, 0)
-    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-    hl.FillTransparency = 0.5
-    hl.OutlineTransparency = 0
-    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    hl.Parent = char
-    
-    -- Buat Billboard
-    if char:FindFirstChild("Head") then
-        local billboard = Instance.new("BillboardGui")
-        billboard.Name = "FyyNameBill"
-        billboard.Size = UDim2.new(0, 100, 0, 20)
-        billboard.StudsOffset = Vector3.new(0, 3.5, 0)
-        billboard.AlwaysOnTop = true
-        billboard.MaxDistance = 500
-        
-        local tl = Instance.new("TextLabel")
-        tl.Size = UDim2.new(1, 0, 1, 0)
-        tl.BackgroundTransparency = 1
-        tl.Text = plr.Name
-        tl.TextColor3 = Color3.new(1, 1, 1)
-        tl.TextStrokeColor3 = Color3.new(0, 0, 0)
-        tl.TextStrokeTransparency = 0
-        tl.TextScaled = true
-        tl.Font = Enum.Font.GothamBold
-        tl.Parent = billboard
-        
-        billboard.Parent = char.Head
-    end
-end
-
--- Function untuk disable ESP player
-local function disableESPForPlayer(plr)
-    local char = plr.Character
-    if char then
-        if char:FindFirstChild("FyyESP") then
-            char.FyyESP:Destroy()
-        end
-        if char:FindFirstChild("Head") and char.Head:FindFirstChild("FyyNameBill") then
-            char.Head.FyyNameBill:Destroy()
-        end
-    end
-end
-
--- Function untuk setup ESP semua player
-local function setupESP()
-    -- Setup existing players
-    for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-        if plr ~= game:GetService("Players").LocalPlayer then
-            if espEnabled then
-                if plr.Character then
-                    enableESPForPlayer(plr)
-                end
-                
-                -- Connect character added
-                espConnections[plr] = plr.CharacterAdded:Connect(function(char)
-                    task.wait(1)
-                    enableESPForPlayer(plr)
-                end)
-            else
-                disableESPForPlayer(plr)
-                if espConnections[plr] then
-                    espConnections[plr]:Disconnect()
-                    espConnections[plr] = nil
-                end
-            end
-        end
-    end
-    
-    -- Setup new players
-    espConnections.playerAdded = game:GetService("Players").PlayerAdded:Connect(function(plr)
-        if espEnabled then
-            espConnections[plr] = plr.CharacterAdded:Connect(function(char)
-                task.wait(1)
-                enableESPForPlayer(plr)
-            end)
-        end
-    end)
-end
-
--- Toggle utama ESP
-local ESPToggle = Player:Toggle({
-    Title = "Player ESP",
-    Type = "Toggle",
-    Default = false,
-    Callback = function(state)
-        espEnabled = state
-        
-        if espEnabled then
-            -- Enable ESP
-            setupESP()
-            WindUI:Notify({
-                Title = "Player ESP",
-                Content = "ESP Enabled",
-                Duration = 3
-            })
-        else
-            -- Disable ESP
-            for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-                if plr ~= game:GetService("Players").LocalPlayer then
-                    disableESPForPlayer(plr)
-                end
-            end
-            
-            -- Cleanup connections
-            for plr, connection in pairs(espConnections) do
-                if connection then
-                    connection:Disconnect()
-                end
-            end
-            espConnections = {}
-            
-            WindUI:Notify({
-                Title = "Player ESP",
-                Content = "ESP Disabled",
-                Duration = 3
-            })
-        end
-    end
-})
-
-local AntiLagButton = Player:Button({
-    Title = "Apply Anti Lag",
-    Desc = "Optimalkan game untuk mengurangi lag",
-    Callback = function()
-        WindUI:Notify({
-            Title = "Anti Lag",
-            Content = "Mengaplikasikan optimasi...",
-            Duration = 2,
-            Icon = "loader",
-        })
-        
-        local Lighting = game:GetService("Lighting")
-        local Workspace = game:GetService("Workspace")
-        local player = game.Players.LocalPlayer
-        
-        for _, obj in ipairs(Workspace:GetDescendants()) do
-            if obj:IsA("BasePart") and not obj:IsDescendantOf(player.Character) then
-                obj.Material = Enum.Material.Plastic
-            end
-        end
-
-        for _, obj in ipairs(Workspace:GetDescendants()) do
-            if obj:IsA("ParticleEmitter") or obj:IsA("Beam") or obj:IsA("Trail") or obj:IsA("Sparkles") or obj:IsA("Smoke") or obj:IsA("Fire") then
-                obj.Enabled = false
-            end
-        end
-
-        for _, obj in ipairs(Lighting:GetChildren()) do
-            if obj:IsA("BloomEffect") or obj:IsA("BlurEffect") or obj:IsA("ColorCorrectionEffect") or obj:IsA("DepthOfFieldEffect") or obj:IsA("SunRaysEffect") then
-                obj.Enabled = false
-            end
-        end
-
-        local camera = Workspace.CurrentCamera
-        for _, obj in ipairs(camera:GetChildren()) do
-            if obj:IsA("BlurEffect") then
-                obj.Enabled = false
-            end
-        end
-
-        local sky = Lighting:FindFirstChildOfClass("Sky")
-        if sky then
-            sky.CelestialBodiesShown = false
-            sky.StarCount = 0
-        end
-
-        Lighting.GlobalShadows = false
-        Lighting.Technology = Enum.Technology.Compatibility
-        Lighting.FogEnd = 100000
-        Lighting.EnvironmentDiffuseScale = 0
-        Lighting.EnvironmentSpecularScale = 0
-        Lighting.Brightness = 1
-        Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
-
-        for _, obj in ipairs(Workspace:GetDescendants()) do
-            if obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
-                obj.Enabled = false
-            end
-        end
-
-        for _, obj in ipairs(Workspace:GetDescendants()) do
-            if obj:IsA("Sound") then
-                obj.Playing = false
-            end
-        end
-        
-        WindUI:Notify({
-            Title = "Anti Lag",
-            Content = "Optimasi berhasil diaplikasikan!",
-            Duration = 3,
-            Icon = "check",
-        })
-    end
-})
-
-Player:Space()
-Player:Divider()
-
-local Section = Player:Section({
-    Title = "Gui External",
-    Opened = true,
-})
-
-local FlyButton = Player:Button({
-    Title = "Fly GUI",
-    Locked = false,
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/XNEOFF/FlyGuiV3/main/FlyGuiV3.txt"))()
-
-        WindUI:Notify({
-            Title = "Fly",
-            Content = "Fly GUI berhasil dijalankan ✅",
-            Duration = 3,
-            Icon = "bell"
-        })
-    end
-})
-
----------------- END OF PLAYER ------------------
--- ======================
--- TAB UNIVERSAL 🌐
--- ======================
-local UniversalTab = Window:Tab({
-    Title = "Universal 🌐",
-    Icon = "globe"
+local ForgeSection = ForgeTab:Section({
+    Title = "Script Loaders",
+    Opened = true
 })
 
 -- ======================
--- HEADER
--- ======================
-UniversalTab:Paragraph({
-    Title = "🌐 Universal Hub | FayintX",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-⚡ Multi Script Loader
-🌍 Support Many Games
-
-🔥 Fast • Clean • Stable
-━━━━━━━━━━━━━━━━━━━━
-]]
-})
-
-UniversalTab:Divider()
-
--- ======================
--- MAIN SCRIPT
--- ======================
-UniversalTab:Paragraph({
-    Title = "🚀 MAIN SCRIPT",
-})
-
-UniversalTab:Button({
-    Title = "🎣 Fish It",
-    Desc = "Auto fishing script",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/MajestySkie/Chloe-X/main/Main/ChloeX"))()
-        WindUI:Notify({Title="🎣 Fish It", Content="Loaded Successfully 🚀", Duration=3})
-    end
-})
-
-UniversalTab:Button({
-    Title = "🌊 Tsunami Script",
-    Desc = "Tsunami automation",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/CyrusOffc/scriptcyrus/refs/heads/main/roblox/loader.lua"))()
-        WindUI:Notify({Title="🌊 Tsunami", Content="Loaded Successfully 🚀", Duration=3})
-    end
-})
-
-UniversalTab:Button({
-    Title = "⚡ Tora Universal",
-    Desc = "Multi game script hub",
-    Callback = function()
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Tora-Isme-Hub-UPD-262-Games-Support-keyless-49726"))()
-        WindUI:Notify({Title="⚡ Tora Hub", Content="Loaded Successfully 🚀", Duration=3})
-    end
-})
-
-UniversalTab:Divider()
-
--- ======================
--- UTILITY
--- ======================
-UniversalTab:Paragraph({
-    Title = "🛠️ UTILITY",
-})
-
-UniversalTab:Button({
-    Title = "🛡️ Anti AFK",
-    Desc = "Prevent AFK kick",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/Anti-afk/main/antiafkbyhassanxzyn"))()
-        WindUI:Notify({Title="🛡️ Anti AFK", Content="Activated ✅", Duration=3})
-    end
-})
-
-UniversalTab:Button({
-    Title = "⌨️ Virtual Keyboard",
-    Desc = "Mobile keyboard support",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/Virtual-Keyboard"))()
-        WindUI:Notify({Title="⌨️ Keyboard", Content="Loaded ✅", Duration=3})
-    end
-})
-
-UniversalTab:Button({
-    Title = "💸 Fake Donate",
-    Desc = "Visual donate troll",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/Fake-Donate"))()
-        WindUI:Notify({Title="💸 Fake Donate", Content="Loaded 😈", Duration=3})
-    end
-})
-
-UniversalTab:Divider()
-
--- ======================
--- FE SCRIPT
--- ======================
-UniversalTab:Paragraph({
-    Title = "🎭 FE SCRIPT",
-})
-
-UniversalTab:Button({
-    Title = "🕺 FE Emotes",
-    Desc = "Emote animation (client)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/FE-Emotes"))()
-        WindUI:Notify({Title="🕺 Emotes", Content="Loaded 🎭", Duration=3})
-    end
-})
-
-UniversalTab:Button({
-    Title = "🎬 FE Animation",
-    Desc = "Animation pack (client)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/FE-Animation"))()
-        WindUI:Notify({Title="🎬 Animation", Content="Loaded 🎭", Duration=3})
-    end
-})
-
-UniversalTab:Button({
-    Title = "🎯 FE Aimbot",
-    Desc = "Aimbot system (client)",
-    Callback = function()
-        loadstring(game:HttpGet("https://pastefy.app/yR2T2vtp/raw"))()
-        WindUI:Notify({Title="🎯 Aimbot", Content="Loaded 🔥", Duration=3})
-    end
-})
--- ======================
--- TAB TSUNAMI 🌊
--- ======================
-local TsunamiTab = Window:Tab({
-    Title = "Tsunami 🌊",
-    Icon = "waves"
-})
-
--- HEADER
-TsunamiTab:Paragraph({
-    Title = "🌊 Tsunami Script Hub",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-⚡ Status : READY
-📦 Scripts : 5 Available
-
-Feature:
-• Fast Execute
-• Updated Scripts
-• Easy Access
-
-⚠️ Note:
-Jika script tidak work berarti sudah di patch developer
-━━━━━━━━━━━━━━━━━━━━
-]]
-})
-
-TsunamiTab:Divider()
-
--- ======================
--- FUNCTION BIAR RAPI
--- ======================
-local function runTsunami(name, url)
-    loadstring(game:HttpGet(url, true))()
-
-    WindUI:Notify({
-        Title = "🌊 Tsunami",
-        Content = name.." berhasil dijalankan 🚀",
-        Duration = 3,
-        Icon = "waves"
-    })
-end
-
--- ======================
--- BUTTON LIST
+-- BUTTONS
 -- ======================
 
-TsunamiTab:Button({
-    Title = "🌊 Script 1",
-    Desc = "Escape Tsunami (Version 1)",
-    Callback = function()
-        runTsunami("Script 1", "https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots")
-    end
-})
-
-TsunamiTab:Button({
-    Title = "🌊 Script 2",
-    Desc = "Pastebin Version",
-    Callback = function()
-        runTsunami("Script 2", "https://pastebin.com/raw/Ai5WqH8N")
-    end
-})
-
-TsunamiTab:Button({
-    Title = "🌊 Script 3",
-    Desc = "Version V4",
-    Callback = function()
-        runTsunami("Script 3", "https://raw.githubusercontent.com/kedd063/KdmlScripts/refs/heads/main/EscapeTsunamiForBrainrotsV4")
-    end
-})
-
-TsunamiTab:Button({
-    Title = "🌊 Script 4",
-    Desc = "JNHH Version",
-    Callback = function()
-        runTsunami("Script 4", "https://raw.githubusercontent.com/JNHHGaming/Tsunami5/refs/heads/main/JN")
-    end
-})
-
-TsunamiTab:Button({
-    Title = "🌊 Script 5",
-    Desc = "Pastefy Version",
-    Callback = function()
-        runTsunami("Script 5", "https://pastefy.app/MxAm4M03/raw")
-    end
-})
-
-TsunamiTab:Divider()
-
--- ======================
--- 🖼️ TAB COPY AVATAR
--- ======================
-local AvatarTab = Window:Tab({
-    Title = "Copy Avatar",
-    Icon = "camera"
-})
-
--- ======================
--- HEADER
--- ======================
-AvatarTab:Paragraph({
-    Title = "Avatar Loader | FayintX",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-⚡ Status : READY
-🌍 Mode   : Universal
-
-Feature:
-• Instant Load Avatar
-• Copy Avatar V2
-• Fast Execute
-
-🔥 Simple • Clean • Powerful
-━━━━━━━━━━━━━━━━━━━━
-]]
-})
-
-AvatarTab:Divider()
-
--- ======================
--- 🚀 EXECUTE AVATAR SCRIPT
--- ======================
-AvatarTab:Button({
-    Title = "Execute Avatar Script",
-    Desc = "Run universal avatar changer",
+ForgeSection:Button({
+    Title = "Airflow Script",
     Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/darkdexv2/universalavatarchanger/main/avatarchanger"))()
-
-        WindUI:Notify({
-            Title = "Avatar System",
-            Content = "Avatar script loaded 🔥",
-            Duration = 3,
-            Icon = "camera"
-        })
+        loadstring(game:HttpGet("https://airflowscript.com/loader"))()
     end
 })
 
--- ======================
--- 📋 COPY AVATAR V2
--- ======================
-AvatarTab:Button({
-    Title = "Copy Avatar V2",
-    Desc = "Copy avatar script v2",
-    Icon = "copy",
+ForgeSection:Button({
+    Title = "Zenith Hub",
+    Icon = "play",
     Callback = function()
-        local link = "https://raw.githubusercontent.com/darkdexv2/universalavatarchanger/main/avatarchanger"
-        if setclipboard then setclipboard(link) end
-
-        WindUI:Notify({
-            Title = "Copy Avatar",
-            Content = "Script V2 berhasil dicopy",
-            Duration = 3,
-            Icon = "copy"
-        })
+        loadstring(game:HttpGet("https://zenithhub.cloud/panel/script"))()
     end
 })
 
-AvatarTab:Divider()
-
--- ======================
--- 🔑 COPY KEY
--- ======================
-AvatarTab:Button({
-    Title = "Copy Key",
-    Desc = "Copy key untuk script",
-    Icon = "key",
+ForgeSection:Button({
+    Title = "Chiyo Hub",
+    Icon = "play",
     Callback = function()
-        local key = "Ulises84342376"
-        if setclipboard then setclipboard(key) end
-
-        WindUI:Notify({
-            Title = "Key Copied",
-            Content = "Key berhasil dicopy",
-            Duration = 3,
-            Icon = "key"
-        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kaisenlmao/loader/refs/heads/main/chiyo.lua"))()
     end
 })
 
-AvatarTab:Divider()
-
--- ======================
--- ⚙️ FUTURE FEATURE
--- ======================
-AvatarTab:Button({
-    Title = "Save Avatar (Soon)",
-    Desc = "Save avatar preset",
-    Icon = "save",
-    Locked = true
-})
-
-AvatarTab:Button({
-    Title = "Custom Avatar ID (Soon)",
-    Desc = "Load avatar by ID",
-    Icon = "user",
-    Locked = true
-})
--- ======================
--- 🔤 SAMBUNG KATA TAB
--- ======================
-local KataTab = Window:Tab({
-    Title = "Sambung Kata",
-    Icon = "type"
-})
-
-local KEY = "BEVERLYHUB"
-
--- ======================
--- 🔑 KEY SECTION (COPY ONLY)
--- ======================
-local KeySection = KataTab:Section({
-    Title = "🔑 Key Access",
-    Description = "Gunakan key untuk akses script"
-})
-
--- COPY KEY BUTTON
-KeySection:Button({
-    Title = "📋 Copy Key",
-    Description = "Click untuk copy key BeverlyHub",
+ForgeSection:Button({
+    Title = "Speed Hub X",
+    Icon = "play",
     Callback = function()
-        setclipboard(KEY)
-
-        WindUI:Notify({
-            Title = "Key Copied",
-            Content = "Key berhasil di copy 📋",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
     end
 })
 
--- ======================
--- 📌 INFO
--- ======================
-KataTab:Paragraph({
-    Title = "Supported Game",
-    Desc = "• Sambung Kata\n\nGunakan key sebelum menjalankan script."
-})
-
--- ======================
--- 🚀 RUN SCRIPT (LANGSUNG)
--- ======================
-KataTab:Button({
-    Title = "🚀 Run Sambung Kata",
-    Description = "Auto play Sambung Kata • Fast & Simple",
+ForgeSection:Button({
+    Title = "Fisch Hub",
+    Icon = "play",
     Callback = function()
-
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/bevankeren/sambung-kata/master/bejir.lua"))()
-
-        WindUI:Notify({
-            Title = "Sambung Kata",
-            Content = "Script berhasil dijalankan 🔤🔥",
-            Duration = 3
-        })
-    end
-})
--- ======================
--- 📦 SCRIPT / LOADER TAB
--- ======================
-
-local ScriptTab = Window:Tab({
-    Title = "Loader",
-    Icon = "box"
-})
-
--- ======================
--- 📂 SECTION MAIN
--- ======================
-
-local Main = ScriptTab:Section({
-    Title = "🔥 Script Loader",
-    Description = "Load your favorite scripts with FayintX"
-})
-
--- 🎣 Fishing
-Main:Button({
-    Title = "🎣 Fishing Script",
-    Description = "Auto fishing • Lucky Blocks",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/FishForLuckyBlocks"))()
-        WindUI:Notify({
-            Title = "Fishing",
-            Content = "Fishing Script Loaded 🎣",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Skibidiking123/Fisch1/refs/heads/main/FischMain"))()
     end
 })
 
--- ⚡ Brainrot Speed
-Main:Button({
-    Title = "⚡ Brainrot Speed x1+",
-    Description = "Speed boost Brainrot",
+ForgeSection:Button({
+    Title = "UB Hub",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/1SpeedEscapeforBrainrots"))()
-        WindUI:Notify({
-            Title = "Brainrot",
-            Content = "Speed Script Activated ⚡",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/TeamUBHub/UBLoader/refs/heads/main/index/Key.lua"))()
     end
 })
 
--- 🦘 Jump Brainrot
-Main:Button({
-    Title = "🦘 Jump Brainrot",
-    Description = "Auto jump system",
+ForgeSection:Button({
+    Title = "Pastefy Script 1",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/JumpforBrainrots"))()
-        WindUI:Notify({
-            Title = "Brainrot",
-            Content = "Jump Script Loaded 🦘",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://pastefy.app/sUvho2d7/raw"))()
     end
 })
 
--- 🍎 Blox Fruits Auto Farm
-Main:Button({
-    Title = "🍎 Blox Fruits Auto Farm",
-    Description = "Auto farm & leveling",
+ForgeSection:Button({
+    Title = "PepeHook",
+    Icon = "play",
     Callback = function()
-        repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
-        loadstring(game:HttpGet("https://github.com/LeafHubAcademy/LeafHub/raw/refs/heads/main/Leaf.lua"))()
-        WindUI:Notify({
-            Title = "Blox Fruits",
-            Content = "Auto Farm Loaded 🍎",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/GiftStein1/pepehook-loader/refs/heads/main/loader.lua"))()
     end
 })
 
--- 🎁 Lucky Box Fishing
-Main:Button({
-    Title = "🎁 Lucky Box Fishing",
-    Description = "Fishing for lucky rewards",
+ForgeSection:Button({
+    Title = "Luarmor Script 1",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/FishForLuckyBlocks"))()
-        WindUI:Notify({
-            Title = "Lucky Box",
-            Content = "Script Loaded 🎁",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/6f9e8a4664c53863bafc2e0c13e69e47.lua"))()
     end
 })
 
--- 🎣 Fisch Script 1
-Main:Button({
-    Title = "🎣 Fisch Script (v1)",
-    Description = "Auto fishing Fisch",
+ForgeSection:Button({
+    Title = "Rifton Hub",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/KAN-FISCH/tesss/refs/heads/main/gunung/fish.lua"))()
-        WindUI:Notify({
-            Title = "Fisch",
-            Content = "Script Loaded 🎣",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://rifton.top/loader.lua"))()
     end
 })
 
--- 🎣 Fisch Script 2
-Main:Button({
-    Title = "🎣 Fisch Script (v2)",
-    Description = "Alternative Fisch script",
+ForgeSection:Button({
+    Title = "Haze Hub",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/thantzy/thanhub/refs/heads/main/thanv1"))()
-        WindUI:Notify({
-            Title = "Fisch",
-            Content = "Script Loaded 🎣",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://haze.wtf/api/script"))()
     end
 })
 
--- 👊 Slap Fights
-Main:Button({
-    Title = "👊 Slap Fights",
-    Description = "Auto slap & features",
+ForgeSection:Button({
+    Title = "Pastefy Script 2",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/SlapFights"))()
-        WindUI:Notify({
-            Title = "Slap Fights",
-            Content = "Script Loaded 👊",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://pastefy.app/RpcM27HB/raw"))()
     end
 })
 
--- 🚔 Prison Life
-Main:Button({
-    Title = "🚔 Prison Life",
-    Description = "Admin & fun script",
+ForgeSection:Button({
+    Title = "Luarmor Script 2",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/zenss555a/script/refs/heads/main/Prison-Life.lua", true))()
-        WindUI:Notify({
-            Title = "Prison Life",
-            Content = "Script Loaded 🚔",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/2075c39b9a5a2e4414c59c93fe8a5f06.lua"))()
     end
 })
 
--- 🎯 Bloxspin
-Main:Button({
-    Title = "🎯 Bloxspin",
-    Description = "PvP script",
+ForgeSection:Button({
+    Title = "Simca Forge Script",
+    Icon = "play",
     Callback = function()
-        local loader = loadstring
-        local url = "https://raw.githubusercontent.com/hermanos-dev/hermanos-hub/refs/heads/main/BlockSpin/blockspin-pvp.lua"
-        loader(game:HttpGet(url))()
-
-        WindUI:Notify({
-            Title = "Bloxspin",
-            Content = "Script Loaded 🎯",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/notmydaisy/simca/main/games/the-forge"))()
     end
 })
 
--- 🌙 99 Nights
-Main:Button({
-    Title = "🌙 99 Nights",
-    Description = "Foxname Hub",
+ForgeSection:Button({
+    Title = "Skibidi Forge Hub",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameHub.lua"))()
-        WindUI:Notify({
-            Title = "99 Nights",
-            Content = "Script Loaded 🌙",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SkibidiHub111/Forge/refs/heads/main/No1Dev"))()
     end
 })
 
--- 🍎 Blox Fruits (Alt)
-Main:Button({
-    Title = "🍎 Blox Fruits (Alt)",
-    Description = "Quantum Onyx script",
+ForgeSection:Button({
+    Title = "Lunor Hub",
+    Icon = "play",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
-        WindUI:Notify({
-            Title = "Blox Fruits",
-            Content = "Script Loaded 🍎",
-            Duration = 3
-        })
+        loadstring(game:HttpGet("https://lunor.dev/loader"))()
+    end
+})
+
+ForgeSection:Button({
+    Title = "Pastefy Script 3",
+    Icon = "play",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/tWslZUaE/raw"))()
     end
 })
 -- ======================
@@ -1789,98 +1750,240 @@ Main:Button({
 -- ======================
 local HubTab = Window:Tab({
     Title = "Blox Hub",
-    Icon = "fruit"" -- Icon diganti sesuai Blox Fruits
+    Icon = "leaf",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
 })
+local executed = {}
 
+local function notify(text)
+    WindUI:Notify({
+        Title = "Blox Hub",
+        Content = text,
+        Duration = 3
+    })
+end
+
+local function runHub(name, func)
+    if executed[name] then
+        notify(name .. " sudah dijalankan!")
+        return
+    end
+
+    local success, err = pcall(func)
+
+    if success then
+        executed[name] = true
+        notify(name .. " berhasil!")
+    else
+        notify("Gagal jalanin " .. name)
+        warn(err)
+    end
+end
+
+-- ======================
+-- HEADER
+-- ======================
 HubTab:Paragraph({
     Title = "🔥 Blox Fruits Hub Loader",
     Desc = "Kumpulan script hub terbaik (Key & No Key)"
 })
 
-HubTab:Divider()
-
+-- ======================
 -- 🔓 NO KEY HUB
-HubTab:Paragraph({
+-- ======================
+HubTab:Section({
     Title = "🔓 No Key Hub",
-    Desc = "Langsung execute tanpa key"
+    Text = "Langsung execute tanpa key"
 })
 
 HubTab:Button({
-    Title = "🥓 Bacon Hub",
-    Desc = "No Key • Simple",
+    Title = "Banana Hub",
+    Icon = "banana",
+    Callback = function()
+        runHub("Banana Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/aloaloalo322/sssdas/refs/heads/main/cc"))()
+        end)
+    end
+})
+
+HubTab:Button({
+    Title = "BloxKid PVP",
+    Icon = "sword",
+    Callback = function()
+        runHub("BloxKid PVP", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/khoavipok/ScriptkhanhlyHUB/refs/heads/main/bloxkidPVP"))()
+        end)
+    end
+})
+
+HubTab:Button({
+    Title = "Hermanos Hub (PVP)",
+    Icon = "target",
+    Callback = function()
+        runHub("Hermanos Hub", function()
+            getgenv().script_mode = "PVP"
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/hermanos-dev/hermanos-hub/refs/heads/main/Loader.lua"))()
+        end)
+    end
+})
+
+HubTab:Button({
+    Title = "Bacon Hub",
     Icon = "hamburger",
     Callback = function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/BaconScriptHub/BaconHub/main/New-BaconHub.lua.txt'))()
+        runHub("Bacon Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/BaconScriptHub/BaconHub/main/New-BaconHub.lua.txt"))()
+        end)
     end
 })
 
 HubTab:Button({
-    Title = "🐻 Teddy Hub",
-    Desc = "No Key • Clean UI",
+    Title = "Teddy Hub",
     Icon = "bear",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TeddyHub.lua"))()
+        runHub("Teddy Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/main/TeddyHub.lua"))()
+        end)
     end
 })
 
 HubTab:Button({
-    Title = "💙 Blue X Hub",
-    Desc = "No Key • Popular",
+    Title = "Blue X Hub",
     Icon = "x",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/EN.lua"))()
+        runHub("Blue X Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/main/EN.lua"))()
+        end)
     end
 })
 
 HubTab:Button({
-    Title = "🌌 Gravity Hub",
-    Desc = "No Key • Stable",
-    Icon = "gravity",
+    Title = "BearHud",
+    Icon = "bear",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua"))()
+        runHub("BearHud", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Huylovemy/Bearhudz/refs/heads/main/Bearhud.lua"))()
+        end)
     end
 })
 
 HubTab:Button({
-    Title = "⚡ Speed Hub X",
-    Desc = "Semi No Key",
+    Title = "Gravity Hub",
+    Icon = "globe",
+    Callback = function()
+        runHub("Gravity Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/main/Main.lua"))()
+        end)
+    end
+})
+
+HubTab:Button({
+    Title = "Speed Hub X",
     Icon = "zap",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
+        runHub("Speed Hub X", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
+        end)
     end
 })
 
-HubTab:Divider()
-
--- 🔑 KEY SYSTEM HUB
-HubTab:Paragraph({
-    Title = "🔑 Key System Hub",
-    Desc = "Butuh key sebelum digunakan"
+HubTab:Button({
+    Title = "Maru Hub (No Key)",
+    Icon = "anchor",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/longhihilonghihi-hub/MaruHubV1/refs/heads/main/MainV1.Lua"))()
+    end
 })
 
 HubTab:Button({
-    Title = "🔥 Imp Hub",
-    Desc = "Key System",
+    Title = "Redz Hub",
+    Icon = "sword",
+    Callback = function()
+        runHub("Redz Hub", function()
+
+            local Settings = {
+                JoinTeam = "Pirates",
+                Translator = true
+            }
+
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/newredz/refs/heads/main/Remake-version.luau"))(Settings)
+
+        end)
+    end
+})
+
+HubTab:Button({
+    Title = "Dragon Hub",
+    Icon = "flame",
+    Callback = function()
+        runHub("Dragon Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ahmadsgamer2/Dragon-Hub/main/Script-Execute.lua"))()
+        end)
+    end
+})
+
+HubTab:Button({
+    Title = "Auto Bounty Player Skill Issue",
+    Desc = "Auto bounty farm for Blox Fruits",
+    Icon = "swords",
+    Callback = function()
+        runHub("Auto Bounty Player Skill Issue", function()
+            loadstring(game:HttpGet("https://bnty.nexusdevs.fun/_loaderui.lua"))()
+        end)
+    end
+})
+
+-- ======================
+-- 🔑 KEY SYSTEM HUB
+-- ======================
+HubTab:Section({
+    Title = "🔑 Key System Hub",
+    Text = "Butuh key sebelum digunakan"
+})
+
+HubTab:Button({
+    Title = "Imp Hub",
     Icon = "key",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/alan11ago/Hub/refs/heads/main/ImpHub.lua"))()
+        runHub("Imp Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/alan11ago/Hub/main/ImpHub.lua"))()
+        end)
     end
 })
 
 HubTab:Button({
-    Title = "😂 Hoho Hub",
-    Desc = "Key System • OP",
+    Title = "Hoho Hub",
     Icon = "smile",
     Callback = function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/ascn123/HOHO_H/main/Loading_UI'))()
+        runHub("Hoho Hub", function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ascn123/HOHO_H/main/Loading_UI"))()
+        end)
     end
 })
 
-HubTab:Divider()
+HubTab:Button({
+    Title = "Leaf Hub",
+    Icon = "leaf",
+    Callback = function()
+        runHub("Leaf Hub", function()
+            loadstring(game:HttpGet("https://github.com/LeafHubAcademy/LeafHub/raw/refs/heads/main/Leaf.lua"))()
+        end)
+    end
+})
 
--- 👑 INFO
+-- ======================
+-- INFO
+-- ======================
+HubTab:Section({
+    Title = "Info",
+    Text = "Script Hub Collection"
+})
+
 HubTab:Paragraph({
-    Title = "👑 Info",
+    Title = "System Info",
     Desc = [[
 ━━━━━━━━━━━━━━━━━━━━
 🔥 All Hub Tested
@@ -1890,791 +1993,1309 @@ HubTab:Paragraph({
 ]]
 })
 -- ======================
--- 🧠 STEAL A BRAINROT TAB
+-- UNIVERSAL TAB
 -- ======================
-local BrainrotTab = Window:Tab({
-    Title = "Steal a Brainrot",
-    Icon = "brain"
+local UniversalTab = Window:Tab({
+    Title = "UNIVERSAL",
+    Icon = "globe",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
 })
 
-local player = game.Players.LocalPlayer
-local RunService = game:GetService("RunService")
+-- ======================
+-- HEADER
+-- ======================
+UniversalTab:Paragraph({
+    Title = "FayintX Universal Loader",
+    Desc = [[
+Multi Script Loader
 
--- Character handler
-local character, humanoid, root
+Support multiple games
+Fast execution
+Clean interface
+Stable performance
+]]
+})
 
-local function loadCharacter(char)
-    character = char
-    humanoid = char:WaitForChild("Humanoid")
-    root = char:WaitForChild("HumanoidRootPart")
+UniversalTab:Divider()
+
+-- ======================
+-- MAIN SCRIPTS
+-- ======================
+UniversalTab:Paragraph({
+    Title = "Main Scripts"
+})
+
+UniversalTab:Button({
+    Title = "Tsunami Script",
+    Desc = "Tsunami automation",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/CyrusOffc/scriptcyrus/refs/heads/main/roblox/loader.lua"))()
+        WindUI:Notify({Title="Tsunami", Content="Script loaded", Duration=3})
+    end
+})
+
+UniversalTab:Button({
+    Title = "Tora Universal",
+    Desc = "Universal script hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Tora-Isme-Hub-UPD-262-Games-Support-keyless-49726"))()
+        WindUI:Notify({Title="Tora Hub", Content="Script loaded", Duration=3})
+    end
+})
+
+UniversalTab:Divider()
+
+-- ======================
+-- UTILITY
+-- ======================
+UniversalTab:Paragraph({
+    Title = "Utility"
+})
+
+UniversalTab:Button({
+    Title = "Anti AFK",
+    Desc = "Prevent idle kick",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/Anti-afk/main/antiafkbyhassanxzyn"))()
+        WindUI:Notify({Title="Anti AFK", Content="Activated", Duration=3})
+    end
+})
+
+UniversalTab:Button({
+    Title = "Virtual Keyboard",
+    Desc = "Mobile keyboard support",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/Virtual-Keyboard"))()
+        WindUI:Notify({Title="Keyboard", Content="Loaded", Duration=3})
+    end
+})
+
+UniversalTab:Button({
+    Title = "Fake Donate",
+    Desc = "Visual donate troll",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/Fake-Donate"))()
+        WindUI:Notify({Title="Fake Donate", Content="Loaded", Duration=3})
+    end
+})
+
+UniversalTab:Divider()
+
+-- ======================
+-- FE SCRIPTS
+-- ======================
+UniversalTab:Paragraph({
+    Title = "FE Scripts"
+})
+
+UniversalTab:Button({
+    Title = "FE Emotes",
+    Desc = "Client emote animations",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/FE-Emotes"))()
+        WindUI:Notify({Title="FE Emotes", Content="Loaded", Duration=3})
+    end
+})
+
+UniversalTab:Button({
+    Title = "FE Animation",
+    Desc = "Client animation pack",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/FE-Animation"))()
+        WindUI:Notify({Title="FE Animation", Content="Loaded", Duration=3})
+    end
+})
+
+UniversalTab:Button({
+    Title = "FE Aimbot",
+    Desc = "Client aiming system",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/yR2T2vtp/raw"))()
+        WindUI:Notify({Title="FE Aimbot", Content="Loaded", Duration=3})
+    end
+})
+-- ======================
+-- 🌊 TSUNAMI TAB
+-- ======================
+local Tab = Window:Tab({
+    Title = "Tsunami",
+    Icon = "waves",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- 🌊 HUB HEADER
+-- ======================
+Tab:Paragraph({
+    Title = "Tsunami Script Hub",
+    Desc = "Escape Tsunami Script Collection\nFast • Stable • Updated"
+})
+
+Tab:Divider()
+
+-- ======================
+-- 📊 HUB STATUS
+-- ======================
+Tab:Paragraph({
+    Title = "Hub Status",
+    Desc = "Status : Online\nScripts : 7 Available\nVersion : v1.0"
+})
+
+Tab:Divider()
+
+-- ======================
+-- ⚙️ EXECUTE FUNCTION
+-- ======================
+local function runScript(name,url)
+
+    local success,err = pcall(function()
+        loadstring(game:HttpGet(url,true))()
+    end)
+
+    if success then
+        WindUI:Notify({
+            Title = "Tsunami Hub",
+            Content = name.." loaded successfully",
+            Duration = 3,
+            Icon = "check"
+        })
+    else
+        WindUI:Notify({
+            Title = "Tsunami Hub",
+            Content = name.." failed to load",
+            Duration = 3,
+            Icon = "x"
+        })
+    end
+
 end
 
-loadCharacter(player.Character or player.CharacterAdded:Wait())
-player.CharacterAdded:Connect(loadCharacter)
+-- ======================
+-- 🔓 NO KEY
+-- ======================
+local NoKey = Tab:Section({
+    Title = "No Key Scripts",
+    Icon = "unlock",
+    Opened = true
+})
 
--- Variables
-local noclipEnabled = false
-local antiEnabled = false
-local noclipConnection, antiConnection
+NoKey:Button({
+    Title = "Escape Tsunami V1",
+    Desc = "Simple automation",
+    Icon = "zap",
+    Callback = function()
+        runScript("Escape Tsunami V1","https://raw.githubusercontent.com/gumanba/Scripts/main/EscapeTsunamiForBrainrots")
+    end
+})
+
+NoKey:Button({
+    Title = "Pastebin Version",
+    Desc = "Community script",
+    Icon = "file",
+    Callback = function()
+        runScript("Pastebin Version","https://pastebin.com/raw/Ai5WqH8N")
+    end
+})
+
+NoKey:Button({
+    Title = "JNHH Version",
+    Desc = "No key loader",
+    Icon = "shield",
+    Callback = function()
+        runScript("JNHH Version","https://raw.githubusercontent.com/JNHHGaming/Tsunami5/refs/heads/main/JN")
+    end
+})
+
+NoKey:Button({
+    Title = "Galaxy 6.5",
+    Desc = "Osaka script",
+    Icon = "rocket",
+    Callback = function()
+        runScript("Galaxy 6.5","https://raw.githubusercontent.com/osakaTP2/OsakaTP2/main/Escape%20tsunami%20for%20brainrotsGalaxy6.5")
+    end
+})
 
 -- ======================
--- FUNCTIONS
+-- 🔑 KEY SYSTEM
+-- ======================
+local KeySection = Tab:Section({
+    Title = "Key System Scripts",
+    Icon = "key",
+    Opened = true
+})
+
+KeySection:Button({
+    Title = "V4 Script",
+    Desc = "Key required",
+    Icon = "key",
+    Callback = function()
+        runScript("V4 Script","https://raw.githubusercontent.com/kedd063/KdmlScripts/refs/heads/main/EscapeTsunamiForBrainrotsV4")
+    end
+})
+
+KeySection:Button({
+    Title = "Pastefy Script",
+    Desc = "Key required",
+    Icon = "package",
+    Callback = function()
+        runScript("Pastefy Script","https://pastefy.app/MxAm4M03/raw")
+    end
+})
+
+KeySection:Button({
+    Title = "Luarmor Script",
+    Desc = "Premium loader",
+    Icon = "lock",
+    Callback = function()
+        runScript("Luarmor Script","https://api.luarmor.net/files/v4/loaders/5946add9ab91f1e04cb005346a8b1968.lua")
+    end
+})
+
+Tab:Divider()
+-- ======================
+-- TORA SCRIPT TAB
+-- ======================
+local ToraTab = Window:Tab({
+    Title = "Tora Hub",
+    Icon = "list",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- HEADER
+-- ======================
+ToraTab:Paragraph({
+    Title = "Tora Script Hub",
+    Desc = [[
+Collection of Tora Scripts
+Status : Online
+Version : 1.0
+]]
+})
+
+-- ======================
+-- GAME : BRAINROT
+-- ======================
+ToraTab:Section({
+    Title = "Brainrot",
+    Text = "Available Scripts"
+})
+
+ToraTab:Button({
+    Title = "Fly Script",
+    Desc = "Fly for Brainrot",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/FlyforBrainrots"))()
+
+        WindUI:Notify({
+            Title = "Tora Hub",
+            Content = "Fly Script Loaded",
+            Duration = 3
+        })
+    end
+})
+
+ToraTab:Button({
+    Title = "Tora Loader",
+    Desc = "Arceus Tora Version",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AX-Archive/ArceusXArchive/refs/heads/main/Tora%20Isme"))()
+
+        WindUI:Notify({
+            Title = "Tora Hub",
+            Content = "Tora Loader Loaded",
+            Duration = 3
+        })
+    end
+})
+
+-- ======================
+-- GAME : CATCH A MONSTER
+-- ======================
+ToraTab:Section({
+    Title = "Catch a Monster",
+    Text = "Available Scripts"
+})
+
+ToraTab:Button({
+    Title = "Monster Script",
+    Desc = "Auto Catch Monster",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/CatchaMonster"))()
+
+        WindUI:Notify({
+            Title = "Tora Hub",
+            Content = "Catch a Monster Loaded",
+            Duration = 3
+        })
+    end
+})
+-- ======================
+-- REMOTE TAB
 -- ======================
 
-local function toggleNoclip()
-    noclipEnabled = not noclipEnabled
+local RemoteTab = Window:Tab({
+    Title = "Remote",
+    Icon = "terminal",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
 
-    if noclipEnabled then
-        noclipConnection = RunService.Stepped:Connect(function()
-            if character then
-                for _, v in ipairs(character:GetDescendants()) do
-                    if v:IsA("BasePart") then
-                        v.CanCollide = false
+-- ======================
+-- STATE
+-- ======================
+
+local remoteText = "game:GetService('ReplicatedStorage')"
+local fireCount = 1
+local delay = 0.1
+
+-- ======================
+-- CODE PREVIEW
+-- ======================
+
+local CodeBox = RemoteTab:Code({
+    Title = "Code Preview",
+    Code = remoteText
+})
+
+RemoteTab:Divider()
+
+-- ======================
+-- INPUT SECTION
+-- ======================
+
+local InputSection = RemoteTab:Section({
+    Title = "Remote Settings",
+    Icon = "settings",
+    Opened = true
+})
+
+InputSection:Input({
+    Title = "Remote Code",
+    Desc = "Paste remote code here",
+    Placeholder = "game:GetService(...)",
+    Callback = function(text)
+
+        remoteText = text
+        CodeBox:SetCode(text)
+
+    end
+})
+
+InputSection:Input({
+    Title = "Fire Count",
+    Desc = "Number of executions",
+    Placeholder = "1",
+    Callback = function(v)
+
+        fireCount = tonumber(v) or 1
+
+    end
+})
+
+InputSection:Input({
+    Title = "Delay",
+    Desc = "Delay between executions",
+    Placeholder = "0.1",
+    Callback = function(v)
+
+        delay = tonumber(v) or 0.1
+
+    end
+})
+
+RemoteTab:Divider()
+
+-- ======================
+-- ACTION SECTION
+-- ======================
+
+local ActionSection = RemoteTab:Section({
+    Title = "Actions",
+    Icon = "play-circle",
+    Opened = true
+})
+
+ActionSection:Button({
+    Title = "Execute Remote",
+    Icon = "play",
+    Callback = function()
+
+        for i = 1, fireCount do
+
+            pcall(function()
+                loadstring(remoteText)()
+            end)
+
+            task.wait(delay)
+
+        end
+
+        WindUI:Notify({
+            Title = "Remote",
+            Content = "Execution finished",
+            Duration = 3
+        })
+
+    end
+})
+
+ActionSection:Button({
+    Title = "Copy Code",
+    Icon = "copy",
+    Callback = function()
+
+        if setclipboard then
+            setclipboard(remoteText)
+        end
+
+        WindUI:Notify({
+            Title = "Clipboard",
+            Content = "Code copied",
+            Duration = 3
+        })
+
+    end
+})
+
+ActionSection:Button({
+    Title = "Clear Code",
+    Icon = "trash",
+    Callback = function()
+
+        remoteText = ""
+        CodeBox:SetCode("-- empty")
+
+        WindUI:Notify({
+            Title = "Remote",
+            Content = "Code cleared",
+            Duration = 3
+        })
+
+    end
+})
+-- ======================
+-- SCRIPT LOADER TAB
+-- ======================
+
+local ScriptTab = Window:Tab({
+    Title = "loader",
+    Icon = "clipboard-list",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- SYSTEM
+-- ======================
+
+local function runScript(name,url)
+
+    local success,err = pcall(function()
+        loadstring(game:HttpGet(url,true))()
+    end)
+
+    WindUI:Notify({
+        Title = name,
+        Content = success and "Script loaded" or "Failed to load",
+        Duration = 3,
+        Icon = success and "check" or "x"
+    })
+
+    if not success then
+        warn(err)
+    end
+
+end
+
+-- ======================
+-- MAIN SECTION
+-- ======================
+
+local Main = ScriptTab:Section({
+    Title = "Script Loader",
+    Icon = "cpu",
+    Opened = true
+})
+
+Main:Button({
+    Title = "Fishing Script",
+    Desc = "Auto fishing / lucky blocks",
+    Icon = "fish",
+    Callback = function()
+        runScript(
+        "Fishing",
+        "https://raw.githubusercontent.com/gumanba/Scripts/main/FishForLuckyBlocks"
+        )
+    end
+})
+
+Main:Button({
+    Title = "Brainrot Speed",
+    Desc = "Speed boost for Brainrot",
+    Icon = "activity",
+    Callback = function()
+        runScript(
+        "Brainrot Speed",
+        "https://raw.githubusercontent.com/gumanba/Scripts/main/1SpeedEscapeforBrainrots"
+        )
+    end
+})
+
+Main:Button({
+    Title = "Brainrot Jump",
+    Desc = "Auto jump system",
+    Icon = "arrow-up",
+    Callback = function()
+        runScript(
+        "Brainrot Jump",
+        "https://raw.githubusercontent.com/gumanba/Scripts/main/JumpforBrainrots"
+        )
+    end
+})
+
+Main:Button({
+    Title = "Lucky Box Fishing",
+    Desc = "Fishing rewards script",
+    Icon = "gift",
+    Callback = function()
+        runScript(
+        "Lucky Box",
+        "https://raw.githubusercontent.com/gumanba/Scripts/main/FishForLuckyBlocks"
+        )
+    end
+})
+
+Main:Button({
+    Title = "Slap Fights",
+    Desc = "Auto slap features",
+    Icon = "hand",
+    Callback = function()
+        runScript(
+        "Slap Fights",
+        "https://raw.githubusercontent.com/gumanba/Scripts/main/SlapFights"
+        )
+    end
+})
+
+Main:Button({
+    Title = "Prison Life",
+    Desc = "Admin script",
+    Icon = "shield",
+    Callback = function()
+        runScript(
+        "Prison Life",
+        "https://raw.githubusercontent.com/zenss555a/script/refs/heads/main/Prison-Life.lua"
+        )
+    end
+})
+
+Main:Button({
+    Title = "Bloxspin",
+    Desc = "PvP script",
+    Icon = "target",
+    Callback = function()
+        runScript(
+        "Bloxspin",
+        "https://raw.githubusercontent.com/hermanos-dev/hermanos-hub/refs/heads/main/BlockSpin/blockspin-pvp.lua"
+        )
+    end
+})
+
+Main:Button({
+    Title = "99 Nights",
+    Desc = "Foxname Hub",
+    Icon = "moon",
+    Callback = function()
+        runScript(
+        "99 Nights",
+        "https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameHub.lua"
+        )
+    end
+})
+-- ======================
+-- 👻 INVISIBLE TAB
+-- ======================
+
+local InvisibleTab = Window:Tab({
+    Title = "Invisible",
+    Icon = "eye-off",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+
+local invisibleEnabled = false
+local running = false
+
+InvisibleTab:Toggle({
+    Title = " Enable FE Invisible",
+    Desc = "Clone method (hard to detect by other players)",
+    Default = false,
+    Callback = function(state)
+        invisibleEnabled = state
+
+        if invisibleEnabled and not running then
+            running = true
+
+            task.spawn(function()
+                local lplr = game.Players.LocalPlayer
+                local char = lplr.Character or lplr.CharacterAdded:Wait()
+                char.Archivable = true
+
+                local oldChar = char
+                local oldCFrame = char:GetPivot()
+
+                oldChar:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(1e5,1e6,1e5)
+                task.wait(0.1)
+                oldChar:FindFirstChild("HumanoidRootPart").Anchored = true
+
+                local clone = char:Clone()
+                clone.Parent = workspace
+                lplr.Character = clone
+
+                workspace.CurrentCamera.CameraSubject = clone:FindFirstChildOfClass("Humanoid")
+                clone:FindFirstChild("HumanoidRootPart").CFrame = oldCFrame
+                clone:FindFirstChild("HumanoidRootPart").Anchored = false
+
+                for _,v in pairs(clone:GetDescendants()) do
+                    if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                        v.Transparency = 0.5
                     end
                 end
-            end
-        end)
-    else
-        if noclipConnection then
-            noclipConnection:Disconnect()
-            noclipConnection = nil
+
+                WindUI:Notify({
+                    Title = "Invisible",
+                    Content = "Enabled 👻",
+                    Duration = 3
+                })
+
+                local function revert()
+                    if clone and clone.Parent then
+                        local pos = clone:GetPivot()
+                        clone:Destroy()
+
+                        workspace.CurrentCamera.CameraSubject = oldChar:FindFirstChildOfClass("Humanoid")
+                        oldChar:FindFirstChild("HumanoidRootPart").Anchored = false
+
+                        lplr.Character = oldChar
+                        lplr.Character:PivotTo(pos)
+
+                        WindUI:Notify({
+                            Title = "Invisible",
+                            Content = "Disabled ❌",
+                            Duration = 3
+                        })
+                    end
+                end
+
+                clone:FindFirstChildOfClass("Humanoid").Died:Connect(revert)
+
+                while invisibleEnabled do
+                    task.wait(0.5)
+                end
+
+                revert()
+                running = false
+            end)
+
+        elseif not invisibleEnabled then
+            WindUI:Notify({
+                Title = "Invisible",
+                Content = "Turning Off...",
+                Duration = 2
+            })
         end
     end
-end
-
-local function toggleAnti()
-    antiEnabled = not antiEnabled
-
-    if antiEnabled then
-        antiConnection = RunService.Heartbeat:Connect(function()
-            if humanoid and root then
-                humanoid.MaxHealth = math.huge
-                humanoid.Health = math.huge
-
-                root.AssemblyLinearVelocity =
-                    Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-            end
-        end)
-    else
-        if antiConnection then
-            antiConnection:Disconnect()
-            antiConnection = nil
-        end
-
-        if humanoid then
-            humanoid.MaxHealth = 100
-            humanoid.Health = 100
-        end
-    end
-end
-
-local function setSpeed(val)
-    if humanoid then
-        humanoid.WalkSpeed = val
-    end
-end
-
-local function tpBase()
-    if root then
-        root.CFrame = CFrame.new(150, 50, -200) -- ubah sesuai map
-    end
-end
-
+})
 -- ======================
--- UI (TAB ONLY)
+-- CATCH & TAME TAB
 -- ======================
 
-BrainrotTab:Toggle({
-    Title = "🧱 Noclip",
+local CatchTab = Window:Tab({
+    Title = "Catch & Tame",
+    Icon = "paw-print",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- HEADER
+-- ======================
+
+CatchTab:Paragraph({
+    Title = "Catch & Tame System",
+    Desc = [[
+Instant Catch
+Auto Catch
+Best Script Collection
+]]
+})
+
+CatchTab:Divider()
+
+-- ======================
+-- MAIN SECTION
+-- ======================
+
+local ScriptSection = CatchTab:Section({
+    Title = "Catch & Tame Scripts",
+    Icon = "zap",
+    Opened = true
+})
+
+-- ======================
+-- INSTANT CATCH
+-- ======================
+
+ScriptSection:Button({
+    Title = "Instant Catch",
+    Desc = "Catch instantly",
+    Icon = "fish",
+    Callback = function()
+
+        local args = {100}
+
+        game:GetService("ReplicatedStorage")
+        :WaitForChild("Remotes")
+        :WaitForChild("UpdateProgress")
+        :FireServer(unpack(args))
+
+        WindUI:Notify({
+            Title = "Catch & Tame",
+            Content = "Instant Catch Activated",
+            Duration = 3
+        })
+
+    end
+})
+
+-- ======================
+-- AUTO INSTANT CATCH
+-- ======================
+
+local AutoCatch = false
+
+ScriptSection:Toggle({
+    Title = "Auto Instant Catch",
     Default = false,
-    Callback = toggleNoclip
-})
+    Callback = function(Value)
 
-BrainrotTab:Toggle({
-    Title = "🛡️ Anti Pentungan",
-    Default = false,
-    Callback = toggleAnti
-})
+        AutoCatch = Value
 
-BrainrotTab:Button({
-    Title = "⚡ Speed 50",
-    Callback = function() setSpeed(50) end
-})
+        while AutoCatch do
 
-BrainrotTab:Button({
-    Title = "⚡ Speed 100",
-    Callback = function() setSpeed(100) end
-})
+            local args = {100}
 
-BrainrotTab:Button({
-    Title = "⚡ Speed 150",
-    Callback = function() setSpeed(150) end
-})
+            game:GetService("ReplicatedStorage")
+            :WaitForChild("Remotes")
+            :WaitForChild("UpdateProgress")
+            :FireServer(unpack(args))
 
-BrainrotTab:Button({
-    Title = "🏠 Teleport Base",
-    Callback = tpBase
-})
-WindUI:Notify({Title="Brainrot", Content="Steal a Brainrot Tab Loaded 🧠", Duration=3})
--- ======================
--- 📜 FOOTER
--- ======================
-KataTab:Paragraph({
-    Title = "Info",
-    Desc = "Gunakan key dengan bijak.\n\nJika script tidak work, kemungkinan sudah di patch."
-})
--- ======================
--- 👑 FAYINTX EXCLUSIVE TAB
--- ======================
-
-local SpecialTab = Window:Tab({
-    Title = "👑 Exclusive",
-    Icon = "lock"
-})
-
--- ======================
--- SECTION: LOADER
--- ======================
-
-local LoaderSection = SpecialTab:Section({
-    Title = "🔥 FayintX Private Loader",
-    Description = "Best & Selected Scripts Only 🚀"
-})
-
--- 🎣 Fishing (WORKING)
-LoaderSection:Button({
-    Title = "🎣 Fishing Script [v1.2]",
-    Description = "🟢 WORKING • Auto Fishing • Stable & Fast",
-    Callback = function()
-        loadstring(game:HttpGet("https://pastefy.app/XPTmG2Bm/raw"))()
-        WindUI:Notify({
-            Title = "🎣 Fishing System",
-            Content = "Fishing Script Loaded 🔥",
-            Duration = 3,
-            Icon = "fish"
-        })
-    end
-})
-
--- 👀 Instant Take (PATCHED 🔒)
-LoaderSection:Button({
-    Title = "👀 Instant Take",
-    Description = "🔴 PATCHED • Feature disabled by developer",
-    Locked = true,
-    Callback = function()
-        WindUI:Notify({
-            Title = "⚠️ Instant Take Disabled",
-            Content = "Feature ini sudah tidak bisa digunakan karena sudah di patch oleh developer.",
-            Duration = 4,
-            Icon = "alert-triangle"
-        })
-    end
-})
-
--- 🎁 Lucky Box (BETA)
-LoaderSection:Button({
-    Title = "🎁 Lucky Box [v1.1]",
-    Description = "🟡 BETA • Auto Farm & Open",
-    Callback = function()
-        loadstring(game:HttpGet("http://luminon.top/loader.lua"))()
-        WindUI:Notify({
-            Title = "🎁 Lucky Box",
-            Content = "Lucky Box Loaded 🎉",
-            Duration = 3,
-            Icon = "gift"
-        })
-    end
-})
-
--- ⚡ Godmode (OP)
-LoaderSection:Button({
-    Title = "⚡ Godmode Script [v2.0]",
-    Description = "🟢 WORKING • High Protection • Undetected",
-    Callback = function()
-        loadstring(game:HttpGet("https://pastefy.app/JWHZkgiZ/raw"))()
-        WindUI:Notify({
-            Title = "⚡ Godmode System",
-            Content = "Godmode Activated 🔥",
-            Duration = 3,
-            Icon = "zap"
-        })
-    end
-})
--- =========================
--- 🖱️ TAB SIMULATOR
--- =========================
-local SimulatorTab = Window:Tab({
-    Title = "Simulator",
-    Icon = "cpu"
-})
-
--- =========================
--- ⚡ AUTO CLICKER V2
--- =========================
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-_G.AutoClickerV2Enabled = false
-
-local NetworkModule
-
-pcall(function()
-    local modulesFolder = ReplicatedStorage:WaitForChild("Modules", 5)
-    if modulesFolder then
-        local network = modulesFolder:FindFirstChild("Network")
-        if network then
-            NetworkModule = require(network)
+            task.wait(0.2)
         end
-    end
-end)
 
-local function fireClick()
-    if NetworkModule and type(NetworkModule.FireServer) == "function" then
-        pcall(function()
-            NetworkModule:FireServer("Tap", true)
-        end)
-    end
-end
-
--- LOOP
-task.spawn(function()
-    while true do
-        if _G.AutoClickerV2Enabled then
-            fireClick()
-        end
-        task.wait()
-    end
-end)
-
--- =========================
--- 🎮 TOGGLE UI
--- =========================
-SimulatorTab:Toggle({
-    Title = "Auto Clicker V2",
-    Desc = "Auto tap simulator",
-    Default = false,
-    Callback = function(v)
-        _G.AutoClickerV2Enabled = v
     end
 })
 
--- =========================
--- ⚙️ EXTRA SETTINGS
--- =========================
-SimulatorTab:Paragraph({
-    Title = "Info",
-    Desc = "Made by FayintX | Auto Clicker Optimized ⚡"
-})
+CatchTab:Divider()
+
 -- ======================
--- 🖥️ EXECUTOR SUPPORT TAB
+-- SCRIPT LOADERS
 -- ======================
 
-local SupportTab = Window:Tab({
-    Title = "Executor",
-    Icon = "cpu"
+local LoaderSection = CatchTab:Section({
+    Title = "External Scripts",
+    Icon = "layers",
+    Opened = true
 })
 
--- ======================
--- 📱 MOBILE EXECUTOR
--- ======================
-SupportTab:Paragraph({
-    Title = "📱 Mobile Executor",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-🟢 Delta        • Stable & Working
-🟢 Arceus X     • Smooth Performance
-🟡 Trigon       • Updating System
-🔴 Krnl Mobile  • Currently Down
-🟢 Hydrogen     • Fast & Supported
-🟡 Fluxus       • Under Maintenance
-━━━━━━━━━━━━━━━━━━━━
-]]
+LoaderSection:Button({
+    Title = "Instant Catch Script",
+    Desc = "External version",
+    Icon = "play",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/KWdGmZ3d"))()
+    end
 })
 
-SupportTab:Divider()
-
--- ======================
--- 💻 PC EXECUTOR
--- ======================
-SupportTab:Paragraph({
-    Title = "💻 PC Executor",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-🟢 Synapse X     • Fully Working
-🟢 Script-Ware   • Stable & Clean
-🟡 Krnl          • Updating Version
-🔴 Oxygen U      • Service Down
-🟢 Electron      • Supported
-🟡 Wave          • Beta / Updating
-🟢 Nihon         • Working
-🟢 Celery        • Stable
-
-⛔ Xeno          • Not Supported
-━━━━━━━━━━━━━━━━━━━━
-]]
+LoaderSection:Button({
+    Title = "Auto Mythic + Best Pet",
+    Desc = "Find mythic pets",
+    Icon = "star",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Catch-And-Tame!-Instant-catch-73536"))()
+    end
 })
 
-SupportTab:Divider()
-
--- ======================
--- 🎮 GAME SUPPORT LIST
--- ======================
-SupportTab:Paragraph({
-    Title = "🎮 Script / Game Support",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-🟢 Working • 🟡 Updating • 🔴 Patched
-
-〣 Fishing
-🔴 Fish It
-⛔ Fish Go
-🟡 My Fishing Brainrot
-🔴 Fish Hype
-
-〣 Games
-🟢 Universal Script
-🟢 Tap Simulator!
-🔴 Last Letter
-🟢 Escape Tsunami for Brainrot 
-🔴 Violance District
-🟡 Hypershot!
-🟢 Flick
-🟡 One Shot
-🟡 Bikini Bottom
-🟢 Spin a Baddie
-🟢 Break a Lucky Block
-🟡 Smack a Brainrot 
-🟡 Steal a Fish
-🟡 Escape Tsunami for Memes
-
-〣 Mountain
-🔴 Mount Aetheria
-🟡 Mount Morohmoy
-
-〣 Any Script
-🟡 FPS Booster
-🟡 Copy Map
-🟡 Chaos Spectate
-🟡 FLY GUI V3
-🟢 Fake Donate 
-🟢 Copy Avatar
-🟡 Jump Costum 
-🟢 Animation 
-🟢 Emotes
-🔴 Scanner Backdoor
-🔴 Scanner Remote
-🔴 Costum Teleport
-🟢 Virtual Keyboard 
-🔴 Auto Kick (Troll Banned)
-
-━━━━━━━━━━━━━━━━━━━━
-]]
+LoaderSection:Button({
+    Title = "VinzHub",
+    Desc = "Phantom / Tsunami update",
+    Icon = "activity",
+    Callback = function()
+        loadstring(game:HttpGet("https://script.vinzhub.com/loader"))()
+    end
 })
 
-SupportTab:Divider()
-
--- ======================
--- 📊 STATUS INFO
--- ======================
-SupportTab:Paragraph({
-    Title = "📊 Status Info",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-🟢 Working       → Script berjalan normal
-🟡 Updating      → Sedang update / tidak stabil
-🔴 Patched/Down  → Tidak bisa digunakan
-⛔ Not Supported → Tidak support system
-━━━━━━━━━━━━━━━━━━━━
-]]
-})
--- ======================
--- FOOTER INFO
--- ======================
-SpecialTab:Paragraph({
-    Title = "👑 FayintX Exclusive System",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-🔥 PRIVATE ACCESS ONLY
-
-Script di tab ini adalah pilihan terbaik
-dengan performa tinggi & update terbaru.
-
-🟢 Working  = Aman digunakan
-🟡 Beta     = Dalam pengembangan
-🔴 Patched  = Tidak bisa digunakan
-
-⚠️ Note:
-Jika script tidak work,
-kemungkinan sudah di patch developer.
-
-━━━━━━━━━━━━━━━━━━━━
-🚀 Stay Exclusive • Stay Powerful
-━━━━━━━━━━━━━━━━━━━━
-]]
-})
--- ======================
--- TAB ABOUT 👤
--- ======================
-local AboutTab = Window:Tab({
-    Title = "About 👤",
-    Icon = "user"
+LoaderSection:Button({
+    Title = "Juma Nexus Script",
+    Desc = "Catch & Tame automation",
+    Icon = "cpu",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/JumaNexus/Catch-And-Tame/refs/heads/main/main.lua"))()
+    end
 })
 
-AboutTab:Paragraph({
-    Title = "👤 FayintXCode",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-🚀 PREMIUM UNIVERSAL HUB
-
-Script hub dengan performa cepat,
-ringan, dan stabil untuk berbagai game.
-
-━━━━━━━━━━━━━━━━━━━━
-👑 Developer : FayintX
-⚡ Version   : V0.1.1.2
-🌍 Mode      : Universal
-🧠 System    : Optimized & Lightweight
-
-━━━━━━━━━━━━━━━━━━━━
-💡 FEATURES
-• Fast Execution
-• Clean UI Design
-• Multi Script Support
-• Mobile Friendly
-
-━━━━━━━━━━━━━━━━━━━━
-🔥 STATUS : ACTIVE
-⚠️ Note :
-Beberapa script bisa tidak work
-jika sudah di patch oleh developer game.
-
-━━━━━━━━━━━━━━━━━━━━
-🔥 Stay Fast • Stay Winning
-━━━━━━━━━━━━━━━━━━━━
-]]
-})
--- ======================
--- TAB CREDIT 👑
--- ======================
-local CreditTab = Window:Tab({
-    Title = "Credit 👑",
-    Icon = "user"
-})
--- ======================
--- OWNER INFO
--- ======================
-CreditTab:Paragraph({
-    Title = "👑 OWNER",
-    Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-👤 Name   : FayintX / Rey
-🆔 UserID : 1381078093
-💻 Role   : Developer
-━━━━━━━━━━━━━━━━━━━━
-]]
+LoaderSection:Button({
+    Title = "Purge Hub Loader",
+    Desc = "Updated loader",
+    Icon = "layers",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/x7dJJ9vnFH23/Maintained-Fun/main/FUNC/NewLoader.lua", true))()
+    end
 })
 
--- ======================
--- STATUS
--- ======================
-CreditTab:Paragraph({
-    Title = "🔥 STATUS",
-    Desc = "Active Developer | Script Creator | UI Designer"
+LoaderSection:Button({
+    Title = "JuggerHub",
+    Desc = "Full Features • Key: Mango24",
+    Icon = "badge-check",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Jager-Hub/Scripts/refs/heads/main/loader.lua"))()
+
+        WindUI:Notify({
+            Title = "Catch & Tame",
+            Content = "JuggerHub Loaded",
+            Duration = 3
+        })
+    end
 })
 
--- ======================
--- VERIFIED
--- ======================
-CreditTab:Paragraph({
-    Title = "💎 VERIFIED",
-    Desc = "Official FayintX Developer ✔️"
-})
-
-CreditTab:Divider()
-
--- ======================
--- COPY PROFILE
--- ======================
-CreditTab:Button({
-    Title = "🔗 Copy Roblox Profile",
-    Desc = "Salin link profile Roblox",
+LoaderSection:Button({
+    Title = "Copy JuggerHub Key",
+    Desc = "Key: Mango24",
+    Icon = "key",
     Callback = function()
         if setclipboard then
-            setclipboard("https://www.roblox.com/users/1381078093/profile")
+            setclipboard("Mango24")
         end
 
         WindUI:Notify({
-            Title = "Copied!",
-            Content = "Link profile berhasil dicopy ✅",
-            Duration = 3,
-            Icon = "link"
+            Title = "Catch & Tame",
+            Content = "Key Copied: Mango24",
+            Duration = 3
         })
     end
 })
 
--- ======================
--- COPY DISCORD
--- ======================
-CreditTab:Button({
-    Title = "💬 Copy Discord",
-    Desc = "Join server FayintX",
-    Callback = function()
-        if setclipboard then
-            setclipboard("https://discord.gg/47f6Sm4P7")
-        end
-
-        WindUI:Notify({
-            Title = "Discord",
-            Content = "Link Discord dicopy ✅",
-            Duration = 3,
-            Icon = "message-circle"
-        })
-    end
-})
-
-CreditTab:Divider()
+CatchTab:Divider()
 
 -- ======================
 -- FOOTER
 -- ======================
-CreditTab:Paragraph({
-    Title = "⚡ FayintX Hub",
-    Desc = "Premium Script • Clean UI • Best Performance 🚀"
-})
--- ======================
--- ⚙️ SETTINGS TAB (PREMIUM)
--- ======================
-local SettingsTab = Window:Tab({
-    Title = "Settings",
-    Icon = "sliders-horizontal"
-})
 
--- ======================
--- 🤖 AUTO SYSTEM
--- ======================
-SettingsTab:Section({
-    Title = "🤖 Automation System"
-})
-
-local autoExec = false
-local autoRejoin = false
-local autoFPS = false
-
-SettingsTab:Toggle({
-    Title = "Auto Execute",
-    Desc = "Run script otomatis saat join",
-    Default = false,
-    Callback = function(state)
-        autoExec = state
-
-        WindUI:Notify({
-            Title = "Automation",
-            Content = state and "Auto Execute Enabled 🤖" or "Auto Execute Disabled",
-            Duration = 2,
-            Icon = "cpu"
-        })
-    end
-})
-
-SettingsTab:Toggle({
-    Title = "Auto Rejoin",
-    Desc = "Auto reconnect jika kick / disconnect",
-    Default = false,
-    Callback = function(state)
-        autoRejoin = state
-
-        WindUI:Notify({
-            Title = "Automation",
-            Content = state and "Auto Rejoin Enabled 🔄" or "Auto Rejoin Disabled",
-            Duration = 2,
-            Icon = "refresh-cw"
-        })
-    end
-})
-
-SettingsTab:Divider()
-
--- ======================
--- ⚡ PERFORMANCE
--- ======================
-SettingsTab:Section({
-    Title = "⚡ Performance"
-})
-
-SettingsTab:Toggle({
-    Title = "Auto FPS Boost",
-    Desc = "Optimasi otomatis untuk mengurangi lag",
-    Default = false,
-    Callback = function(state)
-        autoFPS = state
-
-        if state then
-            local Lighting = game:GetService("Lighting")
-            local Workspace = game:GetService("Workspace")
-
-            Lighting.GlobalShadows = false
-            Lighting.FogEnd = 100000
-            Lighting.Brightness = 1
-
-            for _, v in ipairs(Workspace:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.Material = Enum.Material.Plastic
-                end
-            end
-
-            WindUI:Notify({
-                Title = "Performance",
-                Content = "FPS Boost Activated ⚡",
-                Duration = 2,
-                Icon = "zap"
-            })
-        else
-            WindUI:Notify({
-                Title = "Performance",
-                Content = "FPS Boost Disabled",
-                Duration = 2,
-                Icon = "zap-off"
-            })
-        end
-    end
-})
-
-SettingsTab:Divider()
-
--- ======================
--- 💾 CONFIG SYSTEM
--- ======================
-SettingsTab:Section({
-    Title = "💾 Config"
-})
-
-local autoSave = false
-
-SettingsTab:Toggle({
-    Title = "Auto Save",
-    Desc = "Menyimpan setting otomatis (soon)",
-    Default = false,
-    Callback = function(state)
-        autoSave = state
-
-        WindUI:Notify({
-            Title = "Config System",
-            Content = state and "Auto Save Enabled 💾" or "Auto Save Disabled",
-            Duration = 2,
-            Icon = "save"
-        })
-    end
-})
-
-SettingsTab:Button({
-    Title = "Save Config",
-    Desc = "Manual save setting",
-    Callback = function()
-        WindUI:Notify({
-            Title = "Config",
-            Content = "Config saved (dummy) 💾",
-            Duration = 2,
-            Icon = "check"
-        })
-    end
-})
-
-SettingsTab:Button({
-    Title = "Load Config",
-    Desc = "Load setting terakhir",
-    Callback = function()
-        WindUI:Notify({
-            Title = "Config",
-            Content = "Config loaded (dummy) 📂",
-            Duration = 2,
-            Icon = "folder"
-        })
-    end
-})
-
-SettingsTab:Divider()
-
--- ======================
--- 🔐 SCRIPT CONTROL
--- ======================
-SettingsTab:Section({
-    Title = "🔐 Control"
-})
-
-SettingsTab:Button({
-    Title = "Reload Script",
-    Desc = "Restart seluruh script",
-    Callback = function()
-        WindUI:Notify({
-            Title = "System",
-            Content = "Reloading script... 🔄",
-            Duration = 2,
-            Icon = "refresh-cw"
-        })
-
-        task.wait(1)
-        loadstring(game:HttpGet("YOUR_SCRIPT_LINK_HERE"))()
-    end
-})
-
-SettingsTab:Button({
-    Title = "Destroy UI",
-    Desc = "Tutup semua interface",
-    Callback = function()
-        local ui = game.CoreGui:FindFirstChild("WindUI")
-        if ui then
-            ui:Destroy()
-        end
-    end
-})
-
-SettingsTab:Divider()
-
--- ======================
--- ⚙️ BACKGROUND SYSTEM
--- ======================
-
--- Auto Execute system
-game.Players.LocalPlayer.CharacterAdded:Connect(function()
-    if autoExec then
-        task.wait(2)
-
-        WindUI:Notify({
-            Title = "Auto Execute",
-            Content = "Executing script... ⚡",
-            Duration = 2,
-            Icon = "cpu"
-        })
-
-        -- taruh script auto disini
-        -- loadstring(game:HttpGet("LINK_LU"))()
-    end
-end)
-
--- Auto Rejoin system
-game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
-    if autoRejoin and child.Name == "ErrorPrompt" then
-        task.wait(2)
-        game:GetService("TeleportService"):Teleport(game.PlaceId)
-    end
-end)
-
--- ======================
--- 👑 CREDIT
--- ======================
-SettingsTab:Paragraph({
-    Title = "👑 Credits",
+CatchTab:Paragraph({
+    Title = "FayintX Catch & Tame",
     Desc = [[
-━━━━━━━━━━━━━━━━━━━━
-👨‍💻 Developer :
-FayintX
+Collection of best scripts
+for Catch & Tame game.
+]]
+})
+-- ======================
+-- BRAINROT TAB
+-- ======================
 
-🎨 UI System :
-WindUI Custom
+local BrainrotTab = Window:Tab({
+    Title = "Steal a Brainrot",
+    Icon = "brain",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
 
-⚡ Features :
-Auto Execute • FPS Boost • Rejoin
+-- ======================
+-- HEADER
+-- ======================
 
-🔥 Premium Build Style
-━━━━━━━━━━━━━━━━━━━━
+BrainrotTab:Paragraph({
+    Title = "Brainrot Script Hub",
+    Desc = [[
+Status : Ready
+Scripts : Multiple
+
+Auto Farm • Teleport • Utility
+]]
+})
+
+BrainrotTab:Divider()
+
+-- ======================
+-- SCRIPT SECTION
+-- ======================
+
+local Main = BrainrotTab:Section({
+    Title = "Brainrot Scripts",
+    Icon = "cpu",
+    Opened = true
+})
+
+Main:Button({
+    Title = "Miranda Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/JJVhs3rK/raw"))()
+    end
+})
+
+Main:Button({
+    Title = "Lennon Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/MJw2J4T6/raw"))()
+    end
+})
+
+Main:Button({
+    Title = "Zzz Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/DHyT4Zoi/raw"))()
+    end
+})
+
+Main:Button({
+    Title = "Rift Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://rifton.top/loader.lua"))()
+    end
+})
+
+Main:Button({
+    Title = "Ajjans Script",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/onliengamerop/Steal-a-brainrot/refs/heads/main/Protected_3771863424757750.lua.txt"))()
+    end
+})
+
+Main:Button({
+    Title = "Chilli Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()
+    end
+})
+
+Main:Button({
+    Title = "KurdHub",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Ninja10908/S4/refs/heads/main/Kurdhub"))()
+    end
+})
+
+Main:Button({
+    Title = "Vortex Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://backend.unban.cc/api/lua/loader"))()
+    end
+})
+
+Main:Button({
+    Title = "Ugly Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/53325754de16c11fbf8bf78101c1c881.lua"))()
+    end
+})
+
+Main:Button({
+    Title = "Denji Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/DynaFetchy/Scripts/refs/heads/main/Loader.lua"))()
+    end
+})
+
+Main:Button({
+    Title = "Lemon Hub",
+    Callback = function()
+        loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/c4281c3937ebd537cb9e860182e41141.lua"))()
+    end
+})
+
+BrainrotTab:Divider()
+
+-- ======================
+-- PAID SCRIPTS
+-- ======================
+
+BrainrotTab:Paragraph({
+    Title = "Paid Scripts",
+    Desc = [[
+Anti Hit Mobile
+Private Server Generator
+Pet Finder + Desync
+
+Contact developer to purchase.
+]]
+})
+-- ======================
+-- COPY AVATAR TAB
+-- ======================
+local AvatarTab = Window:Tab({
+    Title = "Copy avatar",
+    Icon = "copy-check",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- HEADER
+-- ======================
+AvatarTab:Paragraph({
+    Title = "Avatar Loader",
+    Desc = [[
+Status : Ready
+Mode   : Universal
+
+Instant Load • Fast Execute • Simple
+]]
+})
+
+AvatarTab:Divider()
+
+-- ======================
+-- SYSTEM
+-- ======================
+local function runScript(url,name)
+
+    local success,err = pcall(function()
+        loadstring(game:HttpGet(url,true))()
+    end)
+
+    WindUI:Notify({
+        Title = "Avatar System",
+        Content = success and (name.." loaded") or (name.." failed"),
+        Duration = 3,
+        Icon = success and "check" or "x"
+    })
+
+    if not success then
+        warn(err)
+    end
+
+end
+
+-- ======================
+-- MAIN SECTION
+-- ======================
+local MainSection = AvatarTab:Section({
+    Title = "Avatar Scripts",
+    Icon = "user",
+    Opened = true
+})
+
+MainSection:Button({
+    Title = "Execute Avatar Script",
+    Desc = "Universal avatar changer",
+    Icon = "play",
+    Callback = function()
+        runScript(
+            "https://raw.githubusercontent.com/darkdexv2/universalavatarchanger/main/avatarchanger",
+            "Avatar Script"
+        )
+    end
+})
+
+MainSection:Button({
+    Title = "Load Avatar V2",
+    Desc = "Advanced version (key system)",
+    Icon = "layers",
+    Callback = function()
+        runScript(
+            "https://api.luarmor.net/files/v4/loaders/a205d1c31c1854892456e23ad24b13f6.lua",
+            "Avatar V2"
+        )
+    end
+})
+
+AvatarTab:Divider()
+
+-- ======================
+-- KEY SYSTEM
+-- ======================
+local KeySection = AvatarTab:Section({
+    Title = "Key System",
+    Icon = "key",
+    Opened = true
+})
+
+KeySection:Button({
+    Title = "Copy Key",
+    Desc = "Copy key for avatar script",
+    Icon = "copy",
+    Callback = function()
+
+        local key = "Ulises84342376"
+
+        if setclipboard then
+            setclipboard(key)
+        end
+
+        WindUI:Notify({
+            Title = "Clipboard",
+            Content = "Key copied",
+            Duration = 3
+        })
+
+    end
+})
+
+AvatarTab:Divider()
+
+-- ======================
+-- FUTURE FEATURES
+-- ======================
+local FutureSection = AvatarTab:Section({
+    Title = "Future Features",
+    Icon = "clock",
+    Opened = true
+})
+
+FutureSection:Button({
+    Title = "Save Avatar",
+    Desc = "Save avatar preset",
+    Icon = "save",
+    Locked = true
+})
+
+FutureSection:Button({
+    Title = "Custom Avatar ID",
+    Desc = "Load avatar by ID",
+    Icon = "user-plus",
+    Locked = true
+})
+-- ======================
+-- EXECUTOR SUPPORT TAB
+-- ======================
+
+local SupportTab = Window:Tab({
+    Title = "Executor Support",
+    Icon = "cpu",
+    IconColor = Color3.fromRGB(0, 50, 150),
+    IconShape = "Square",
+    IconThemed = true,
+    Border = true
+})
+
+-- ======================
+-- HEADER
+-- ======================
+
+SupportTab:Paragraph({
+    Title = "Executor Compatibility",
+    Desc = [[
+This hub supports multiple mobile and PC executors.
+
+Compatibility may change depending on
+game updates or executor updates.
+]]
+})
+
+SupportTab:Divider()
+
+-- ======================
+-- MOBILE EXECUTORS
+-- ======================
+
+SupportTab:Paragraph({
+    Title = "Mobile Executors",
+    Desc = [[
+Delta        : Working
+Arceus X     : Stable
+Hydrogen     : Supported
+Ronix        : Supported
+Codex        : Supported
+
+Trigon       : Updating
+Fluxus       : Maintenance
+KRNL Mobile  : Currently Down
+]]
+})
+
+SupportTab:Divider()
+
+-- ======================
+-- PC EXECUTORS
+-- ======================
+
+SupportTab:Paragraph({
+    Title = "PC / Windows Executors",
+    Desc = [[
+Synapse X     : Working
+Script-Ware   : Stable
+Electron      : Supported
+Nihon         : Working
+Celery        : Stable
+Volcano       : Supported
+Codex         : Supported
+
+Velocity      : May be Supported
+Wave          : Beta
+KRNL          : Updating
+Oxygen U      : Down
+
+Xeno          : Not Supported
+]]
+})
+
+SupportTab:Divider()
+
+-- ======================
+-- STATUS INFORMATION
+-- ======================
+
+SupportTab:Paragraph({
+    Title = "Status Information",
+    Desc = [[
+Working        → Fully tested and stable
+Stable         → Works reliably
+Supported      → Should work normally
+
+Updating       → Currently being updated
+Maintenance    → Temporarily unavailable
+May be Supported → Not fully tested
+
+Down           → Executor not operational
+Not Supported  → Compatibility not available
+]]
+})
+
+SupportTab:Divider()
+
+-- ======================
+-- FOOTER
+-- ======================
+
+SupportTab:Paragraph({
+    Title = "FayintX System",
+    Desc = [[
+FayintX provides private and optimized scripts
+designed for performance and compatibility.
+
+Executors marked as "Working" or "Stable"
+are recommended for the best experience.
 ]]
 })
